@@ -1,286 +1,371 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FireGuardian</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FireGuardian Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #d32f2f;
+            --primary-dark: #b71c1c;
+            --bg: #f0f2f5;
+            --card: #ffffff;
+            --text-main: #2c3e50;
+            --text-sub: #546e7a;
+            --ok: #2e7d32;
+            --warn: #f9a825;
+            --danger: #c62828;
+            --border: #e0e0e0;
+        }
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
 
-<style>
-:root{
-  --primary:#d32f2f;
-  --dark:#b71c1c;
-  --bg:#f4f4f6;
-  --card:#fff;
-  --text:#222;
-  --ok:#2e7d32;
-  --warn:#f9a825;
-  --danger:#c62828;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-}
-header{
-  background:linear-gradient(90deg,var(--primary),var(--dark));
-  color:#fff;
-  padding:14px;
-  text-align:center;
-}
-.container{max-width:1200px;margin:auto;padding:16px}
-.card{
-  background:var(--card);
-  border-radius:12px;
-  padding:16px;
-  box-shadow:0 6px 20px rgba(0,0,0,.08);
-  margin-bottom:16px;
-}
-nav{
-  display:flex;
-  gap:8px;
-  margin-bottom:16px;
-  flex-wrap:wrap;
-}
-nav button{
-  flex:1;
-  min-width:140px;
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #ddd;
-  cursor:pointer;
-  font-weight:600;
-  background:#fff;
-}
-nav button.active{
-  background:var(--primary);
-  color:#fff;
-}
-.tab{display:none}
-.tab.active{display:block}
+        body { margin: 0; background: var(--bg); color: var(--text-main); line-height: 1.6; }
 
-.dashboard{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:12px;
-}
-.stat{
-  padding:14px;
-  border-radius:12px;
-  color:#fff;
-  font-weight:bold;
-  text-align:center;
-}
-.stat.ok{background:var(--ok)}
-.stat.warn{background:var(--warn)}
-.stat.danger{background:var(--danger)}
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
 
-form{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:12px;
-}
-input,select,textarea{
-  padding:8px;
-  border-radius:8px;
-  border:1px solid #ccc;
-}
-textarea{grid-column:1/-1}
+        .container { max-width: 1100px; margin: auto; padding: 20px; }
 
-.actions{
-  grid-column:1/-1;
-  display:flex;
-  gap:10px;
-}
-.btn{
-  padding:10px 14px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:bold;
-}
-.btn.primary{background:var(--primary);color:#fff}
-.btn.danger{background:#555;color:#fff}
+        /* NAVEGAÇÃO */
+        nav { display: flex; gap: 12px; margin-bottom: 25px; }
+        nav button {
+            flex: 1; padding: 14px; border-radius: 10px; border: none;
+            cursor: pointer; font-weight: 700; background: #fff;
+            color: var(--text-sub); transition: 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            text-transform: uppercase; font-size: 0.85rem;
+        }
+        nav button.active { background: var(--primary); color: #fff; box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3); }
 
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px;
-}
-th,td{
-  padding:8px;
-  border-bottom:1px solid #eee;
-  text-align:left;
-}
-.badge{
-  padding:4px 8px;
-  border-radius:8px;
-  font-size:12px;
-  color:#fff;
-}
-.badge.ok{background:var(--ok)}
-.badge.warn{background:var(--warn)}
-.badge.danger{background:var(--danger)}
-</style>
+        .card {
+            background: var(--card); border-radius: 16px; padding: 25px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.05); margin-bottom: 25px;
+            border: 1px solid var(--border);
+        }
+
+        .tab { display: none; animation: fadeIn 0.4s ease; }
+        .tab.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* DASHBOARD */
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        .stat {
+            padding: 20px; border-radius: 15px; color: #fff; text-align: center;
+            cursor: pointer; transition: transform 0.2s, filter 0.2s;
+        }
+        .stat:hover { transform: scale(1.03); filter: brightness(1.1); }
+        .stat i { font-size: 1.5rem; margin-bottom: 8px; }
+        .stat.total { background: #455a64; }
+        .stat.ok { background: var(--ok); }
+        .stat.warn { background: var(--warn); }
+        .stat.danger { background: var(--danger); }
+        .stat strong { font-size: 1.8rem; display: block; }
+
+        /* FORMULÁRIO DE CADASTRO */
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .full-width { grid-column: 1 / -1; }
+        
+        .field-group { display: flex; flex-direction: column; gap: 6px; }
+        label { font-weight: 600; font-size: 0.9rem; color: var(--text-main); }
+        
+        input, select, textarea {
+            padding: 12px; border-radius: 8px; border: 2px solid #edf2f7;
+            font-size: 1rem; transition: 0.3s; outline: none;
+        }
+        input:focus, select:focus { border-color: var(--primary); background: #fff; }
+
+        fieldset {
+            border: 1px solid var(--border); border-radius: 12px;
+            padding: 20px; margin-bottom: 20px; display: grid;
+            grid-template-columns: repeat(2, 1fr); gap: 15px;
+        }
+        legend { font-weight: bold; padding: 0 10px; color: var(--primary); }
+
+        /* TABELA */
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: #f8f9fa; color: var(--text-sub); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        tr:hover { background: #fcfcfc; }
+
+        .status-badge {
+            padding: 5px 10px; border-radius: 20px; font-size: 0.75rem;
+            font-weight: bold; text-transform: uppercase; color: #fff;
+        }
+        .bg-ok { background: var(--ok); }
+        .bg-warn { background: var(--warn); }
+        .bg-danger { background: var(--danger); }
+
+        .btn-del { 
+            background: #ffebee; color: var(--danger); border: none; 
+            padding: 8px; border-radius: 6px; cursor: pointer; transition: 0.2s;
+        }
+        .btn-del:hover { background: var(--danger); color: #fff; }
+
+        .btn-save {
+            background: var(--primary); color: #fff; border: none;
+            padding: 15px 30px; border-radius: 10px; font-weight: bold;
+            cursor: pointer; font-size: 1rem; width: 100%; margin-top: 10px;
+        }
+        .btn-save:hover { background: var(--primary-dark); }
+
+        @media (max-width: 600px) { .form-grid, fieldset { grid-template-columns: 1fr; } }
+    </style>
 </head>
-
 <body>
 
 <header>
-  <h1><i class="fas fa-shield-alt"></i> FireGuardian</h1>
+    <h1><i class="fas fa-fire-extinguisher"></i> FireGuardian</h1>
+    <p>Gestão de Segurança e Conformidade</p>
 </header>
 
 <div class="container">
+    <nav>
+        <button class="active" data-tab="dash"><i class="fas fa-chart-pie"></i> Início</button>
+        <button data-tab="lista" id="btn-lista"><i class="fas fa-list"></i> Equipamentos</button>
+        <button data-tab="cadastro"><i class="fas fa-plus-circle"></i> Novo Cadastro</button>
+    </nav>
 
-<nav>
-  <button class="active" data-tab="dash">Dashboard</button>
-  <button data-tab="cadastro">Cadastro</button>
-  <button data-tab="lista">Equipamentos</button>
-</nav>
-
-<!-- DASHBOARD -->
-<div id="dash" class="card tab active">
-  <h2>Resumo Geral</h2>
-  <div class="dashboard">
-    <div id="ok" class="stat ok">0 OK</div>
-    <div id="warn" class="stat warn">0 Vencendo</div>
-    <div id="danger" class="stat danger">0 Vencidos</div>
-  </div>
-</div>
-
-<!-- CADASTRO -->
-<div id="cadastro" class="card tab">
-  <h2>Cadastro de Equipamento</h2>
-
-  <form id="form">
-    <select id="tipo" required>
-      <option value="">Tipo Equipamento</option>
-      <option>Extintor</option>
-      <option>Mangueira</option>
-      <option>Personalizado</option>
-    </select>
-
-    <input id="area" placeholder="Área / Andar *" required>
-    <input id="local" placeholder="Localização Detalhada *" required>
-
-    <input type="date" id="ultima" required>
-    <input type="date" id="proxima" required>
-
-    <div id="mangueiraExtra" style="display:none">
-      <label><input type="checkbox" id="storz"> Chave Storz</label>
+    <div id="dash" class="tab active">
+        <div class="card">
+            <h2>Resumo de Segurança</h2>
+            <div class="dashboard">
+                <div class="stat total" onclick="verLista('all')">
+                    <i class="fas fa-boxes"></i>
+                    Total<strong id="total">0</strong>
+                </div>
+                <div class="stat ok" onclick="verLista('ok')">
+                    <i class="fas fa-check-circle"></i>
+                    Em Conformidade<strong id="ok">0</strong>
+                </div>
+                <div class="stat warn" onclick="verLista('warn')">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Vencendo (30d)<strong id="warn">0</strong>
+                </div>
+                <div class="stat danger" onclick="verLista('danger')">
+                    <i class="fas fa-times-circle"></i>
+                    Fora de Prazo<strong id="danger">0</strong>
+                </div>
+            </div>
+            <p style="text-align: center; color: #777; margin-top: 20px;">Clique nos cards acima para filtrar a lista.</p>
+        </div>
     </div>
 
-    <textarea id="obs" placeholder="Observações"></textarea>
-
-    <div class="actions">
-      <button type="submit" class="btn primary">Salvar</button>
-      <button type="reset" class="btn danger">Cancelar</button>
+    <div id="lista" class="tab">
+        <div class="card">
+            <div style="display:flex; justify-content: space-between; align-items: center;">
+                <h2>Equipamentos Cadastrados</h2>
+                <span id="filtro-ativo" style="font-size: 0.8rem; font-weight: bold; color: var(--primary);"></span>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Descrição</th>
+                            <th>Área / Setor</th>
+                            <th>Localização</th>
+                            <th>Próxima Insp.</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
-  </form>
-</div>
 
-<!-- LISTA -->
-<div id="lista" class="card tab">
-  <h2>Equipamentos Cadastrados</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Tipo</th>
-        <th>Área</th>
-        <th>Localização</th>
-        <th>Status</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
-  </table>
-</div>
+    <div id="cadastro" class="tab">
+        <div class="card">
+            <h2><i class="fas fa-edit"></i> Cadastro de Equipamento</h2>
+            <form id="form">
+                <div class="field-group full-width" style="margin-bottom: 15px;">
+                    <label>Usar modelo existente (Auto-preencher)</label>
+                    <select id="modelo">
+                        <option value="">-- Selecione para copiar dados --</option>
+                    </select>
+                </div>
 
+                <fieldset>
+                    <legend>Informações do Equipamento</legend>
+                    <div class="field-group">
+                        <label>Tipo *</label>
+                        <select id="tipo" required>
+                            <option value="Extintor">Extintor</option>
+                            <option value="Mangueira">Mangueira</option>
+                            <option value="Hidrante">Hidrante</option>
+                            <option value="Alarme">Alarme/Sensor</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label>Descrição / Modelo (ex: Pó Químico ABC 4KG) *</label>
+                        <input id="descricao" placeholder="Ex: Pó Químico ABC 4KG" required>
+                    </div>
+                    <div class="field-group">
+                        <label>Área / Pavimento *</label>
+                        <input id="area" placeholder="Ex: Térreo" required>
+                    </div>
+                    <div class="field-group">
+                        <label>Local Específico (Setor) *</label>
+                        <input id="local" placeholder="Ex: SETOR ACGUA" required>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Cronograma de Manutenção</legend>
+                    <div class="field-group">
+                        <label>Última Inspeção *</label>
+                        <input type="date" id="ultima" required>
+                    </div>
+                    <div class="field-group">
+                        <label>Próxima Inspeção/Vencimento *</label>
+                        <input type="date" id="proxima" required>
+                    </div>
+                </fieldset>
+
+                <div class="field-group full-width">
+                    <label>Observações Técnicas</label>
+                    <textarea id="obs" rows="3" placeholder="Anote detalhes sobre o estado do casco, lacre, mangueira, etc."></textarea>
+                </div>
+
+                <button type="submit" class="btn-save">SALVAR EQUIPAMENTO</button>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>
-const tabs=document.querySelectorAll('.tab');
-const buttons=document.querySelectorAll('nav button');
-buttons.forEach(b=>{
-  b.onclick=()=>{
-    buttons.forEach(x=>x.classList.remove('active'));
-    tabs.forEach(t=>t.classList.remove('active'));
-    b.classList.add('active');
-    document.getElementById(b.dataset.tab).classList.add('active');
-  }
-});
+    // Gerenciamento de Abas
+    const tabs = document.querySelectorAll('.tab');
+    const buttons = document.querySelectorAll('nav button');
+    
+    function openTab(tabId) {
+        buttons.forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
+        tabs.forEach(t => t.classList.toggle('active', t.id === tabId));
+    }
 
-const form=document.getElementById('form');
-const tbody=document.getElementById('tbody');
-const tipo=document.getElementById('tipo');
-const storz=document.getElementById('storz');
-const mangueiraExtra=document.getElementById('mangueiraExtra');
+    buttons.forEach(b => b.onclick = () => openTab(b.dataset.tab));
 
-tipo.onchange=()=>{
-  mangueiraExtra.style.display=tipo.value==='Mangueira'?'block':'none';
-};
+    // Lógica de Dados
+    let data = JSON.parse(localStorage.getItem('fire_equip') || '[]');
+    let modelos = JSON.parse(localStorage.getItem('fire_models') || '[]');
+    let filtroAtual = 'all';
 
-let data=JSON.parse(localStorage.getItem('fireguardian')||'[]');
+    function getStatus(item) {
+        const hoje = new Date();
+        const venc = new Date(item.proxima);
+        const diffDias = (venc - hoje) / (1000 * 60 * 60 * 24);
+        
+        if (diffDias < 0) return { label: 'Vencido', class: 'bg-danger', code: 'danger' };
+        if (diffDias <= 30) return { label: 'Atenção', class: 'bg-warn', code: 'warn' };
+        return { label: 'Em Conformidade', class: 'bg-ok', code: 'ok' };
+    }
 
-function status(item){
-  const hoje=new Date();
-  const prox=new Date(item.proxima);
-  const diff=(prox-hoje)/86400000;
-  if(diff<0) return 'danger';
-  if(diff<=30) return 'warn';
-  return 'ok';
-}
+    function render() {
+        const tbody = document.getElementById('tbody');
+        tbody.innerHTML = '';
+        let c = { total: 0, ok: 0, warn: 0, danger: 0 };
 
-function salvar(){
-  localStorage.setItem('fireguardian',JSON.stringify(data));
-  render();
-}
+        data.forEach((item, idx) => {
+            const s = getStatus(item);
+            c.total++;
+            c[s.code]++;
 
-function render(){
-  tbody.innerHTML='';
-  let ok=0,warn=0,danger=0;
-  data.forEach((i,idx)=>{
-    const s=status(i);
-    if(s==='ok')ok++; if(s==='warn')warn++; if(s==='danger')danger++;
-    tbody.innerHTML+=`
-      <tr>
-        <td>${i.tipo}</td>
-        <td>${i.area}</td>
-        <td>${i.local}</td>
-        <td><span class="badge ${s}">${s.toUpperCase()}</span></td>
-        <td><button class="btn danger" onclick="del(${idx})">Excluir</button></td>
-      </tr>`;
-  });
-  document.getElementById('ok').innerText=ok+' OK';
-  document.getElementById('warn').innerText=warn+' Vencendo';
-  document.getElementById('danger').innerText=danger+' Vencidos';
-}
+            if (filtroAtual === 'all' || filtroAtual === s.code) {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><span class="status-badge ${s.class}">${s.label}</span></td>
+                        <td><strong>${item.descricao}</strong><br><small style="color:#888">${item.tipo}</small></td>
+                        <td>${item.area}</td>
+                        <td>${item.local}</td>
+                        <td>${item.proxima.split('-').reverse().join('/')}</td>
+                        <td>
+                            <button class="btn-del" onclick="del(${idx})" title="Excluir">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+            }
+        });
 
-function del(i){
-  data.splice(i,1);
-  salvar();
-}
+        // Atualiza Dashboard
+        document.getElementById('total').innerText = c.total;
+        document.getElementById('ok').innerText = c.ok;
+        document.getElementById('warn').innerText = c.warn;
+        document.getElementById('danger').innerText = c.danger;
 
-form.onsubmit=e=>{
-  e.preventDefault();
-  data.push({
-    tipo:tipo.value,
-    area:area.value,
-    local:local.value,
-    ultima:ultima.value,
-    proxima:proxima.value,
-    storz:storz.checked,
-    obs:obs.value
-  });
-  form.reset();
-  mangueiraExtra.style.display='none';
-  salvar();
-};
+        // Atualiza Modelos no Select
+        const selectModelo = document.getElementById('modelo');
+        selectModelo.innerHTML = '<option value="">-- Selecione para copiar dados --</option>';
+        modelos.forEach((m, i) => {
+            selectModelo.innerHTML += `<option value="${i}">${m.descricao} (${m.local})</option>`;
+        });
+    }
 
-render();
+    function verLista(status) {
+        filtroAtual = status;
+        const labels = { all: '', ok: '(Filtrado: Em Conformidade)', warn: '(Filtrado: Atenção)', danger: '(Filtrado: Vencidos)' };
+        document.getElementById('filtro-ativo').innerText = labels[status];
+        render();
+        openTab('lista');
+    }
+
+    function del(i) {
+        if (confirm('Deseja realmente remover este equipamento do sistema?')) {
+            data.splice(i, 1);
+            save();
+        }
+    }
+
+    function save() {
+        localStorage.setItem('fire_equip', JSON.stringify(data));
+        localStorage.setItem('fire_models', JSON.stringify(modelos));
+        render();
+    }
+
+    document.getElementById('modelo').onchange = (e) => {
+        const m = modelos[e.target.value];
+        if (!m) return;
+        document.getElementById('tipo').value = m.tipo;
+        document.getElementById('descricao').value = m.descricao;
+        document.getElementById('area').value = m.area;
+        document.getElementById('local').value = m.local;
+    };
+
+    document.getElementById('form').onsubmit = (e) => {
+        e.preventDefault();
+        const novo = {
+            tipo: document.getElementById('tipo').value,
+            descricao: document.getElementById('descricao').value,
+            area: document.getElementById('area').value,
+            local: document.getElementById('local').value,
+            ultima: document.getElementById('ultima').value,
+            proxima: document.getElementById('proxima').value,
+            obs: document.getElementById('obs').value
+        };
+
+        data.push(novo);
+        
+        // Adiciona aos modelos se for uma descrição nova
+        if (!modelos.find(m => m.descricao === novo.descricao)) {
+            modelos.push(novo);
+        }
+
+        save();
+        e.target.reset();
+        alert('Equipamento registrado com sucesso!');
+        verLista('all');
+    };
+
+    render();
 </script>
 
 </body>
