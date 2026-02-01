@@ -1,43 +1,1307 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FireGuardian Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Bibliotecas para PDF, Excel e CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        :root {
+            --primary: #d32f2f;
+            --primary-dark: #b71c1c;
+            --primary-light: #ff6659;
+            --secondary: #455a64;
+            --bg: #f5f7fa;
+            --card: #ffffff;
+            --text-main: #263238;
+            --text-sub: #607d8b;
+            --ok: #2e7d32;
+            --ok-light: #4caf50;
+            --warn: #ff9800;
+            --warn-light: #ffb74d;
+            --danger: #c62828;
+            --danger-light: #ef5350;
+            --border: #e0e0e0;
+            --shadow: 0 6px 20px rgba(0,0,0,0.08);
+            --radius: 16px;
+        }
 
-on:
-  # Runs on pushes targeting the default branch
-  push:
-    branches: ["main"]
+        * { 
+            box-sizing: border-box; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+        body { 
+            margin: 0; 
+            padding: 0;
+            background: var(--bg); 
+            color: var(--text-main); 
+            line-height: 1.6;
+        }
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+        .container { 
+            max-width: 100%;
+            margin: auto; 
+            padding: 15px;
+            padding-bottom: 80px;
+        }
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+        /* HEADER */
+        .app-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 20px 15px;
+            text-align: center;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);
+        }
+        
+        .app-header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
 
-jobs:
-  # Single deploy job since we're just deploying
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload entire repository
-          path: '.'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        /* NAVEGAÇÃO */
+        nav { 
+            display: flex; 
+            gap: 8px; 
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+        
+        nav button {
+            flex-shrink: 0;
+            padding: 12px 16px; 
+            border-radius: 10px; 
+            border: none;
+            cursor: pointer; 
+            font-weight: 600; 
+            background: #fff;
+            color: var(--text-sub); 
+            transition: 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-width: 110px;
+        }
+        
+        nav button.active { 
+            background: var(--primary); 
+            color: #fff; 
+            box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3); 
+        }
+
+        .card {
+            background: var(--card); 
+            border-radius: var(--radius); 
+            padding: 20px;
+            box-shadow: var(--shadow); 
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .tab { 
+            display: none; 
+            animation: fadeIn 0.4s ease; 
+        }
+        
+        .tab.active { 
+            display: block; 
+        }
+
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        /* DASHBOARD */
+        .dashboard { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 12px; 
+        }
+        
+        .stat {
+            padding: 18px 12px; 
+            border-radius: 15px; 
+            color: #fff; 
+            text-align: center;
+            cursor: pointer; 
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .stat:hover { 
+            transform: scale(1.03); 
+        }
+        
+        .stat i { 
+            font-size: 1.5rem; 
+            margin-bottom: 6px; 
+        }
+        
+        .stat.total { background: linear-gradient(135deg, #455a64, #37474f); }
+        .stat.ok { background: linear-gradient(135deg, var(--ok), #1b5e20); }
+        .stat.warn { background: linear-gradient(135deg, var(--warn), #f57f17); }
+        .stat.danger { background: linear-gradient(135deg, var(--danger), #b71c1c); }
+        
+        .stat strong { 
+            font-size: 1.6rem; 
+            display: block; 
+        }
+
+        /* FORMULÁRIO */
+        .field-group { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 6px; 
+            margin-bottom: 15px;
+        }
+        
+        label { 
+            font-weight: 600; 
+            font-size: 0.85rem; 
+            color: var(--text-main); 
+        }
+        
+        input, select, textarea {
+            padding: 12px; 
+            border-radius: 10px; 
+            border: 2px solid #edf2f7;
+            font-size: 0.95rem; 
+            transition: 0.3s; 
+            outline: none;
+            width: 100%;
+        }
+        
+        input:focus, select:focus, textarea:focus { 
+            border-color: var(--primary); 
+        }
+
+        fieldset {
+            border: 1px solid var(--border); 
+            border-radius: 12px;
+            padding: 15px; 
+            margin-bottom: 18px; 
+            display: grid;
+            grid-template-columns: 1fr; 
+            gap: 15px;
+        }
+        
+        legend { 
+            font-weight: bold; 
+            padding: 0 10px; 
+            color: var(--primary);
+            font-size: 0.95rem;
+        }
+
+        /* BOTÕES */
+        .btn-save {
+            background: var(--primary); 
+            color: #fff; 
+            border: none;
+            padding: 16px 30px; 
+            border-radius: 12px; 
+            font-weight: 600;
+            cursor: pointer; 
+            font-size: 1rem; 
+            width: 100%; 
+            margin-top: 10px;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-save:hover { 
+            background: var(--primary-dark); 
+        }
+
+        /* TABELA */
+        .table-container { 
+            overflow-x: auto; 
+            margin-top: 10px;
+        }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            min-width: 700px;
+        }
+        
+        th { 
+            background: #f8f9fa; 
+            color: var(--text-sub); 
+            text-transform: uppercase; 
+            font-size: 0.7rem; 
+            letter-spacing: 0.5px;
+            padding: 14px 10px;
+            font-weight: 600;
+        }
+        
+        td { 
+            padding: 14px 10px; 
+            text-align: left; 
+            border-bottom: 1px solid #eee; 
+        }
+        
+        tr:hover { 
+            background: #fcfcfc; 
+        }
+
+        .status-badge {
+            padding: 6px 12px; 
+            border-radius: 20px; 
+            font-size: 0.7rem;
+            font-weight: bold; 
+            text-transform: uppercase; 
+            color: #fff;
+            display: inline-block;
+            text-align: center;
+            min-width: 100px;
+        }
+        
+        .bg-ok { background: var(--ok); }
+        .bg-warn { background: var(--warn); }
+        .bg-danger { background: var(--danger); }
+
+        .btn-del { 
+            background: #ffebee; 
+            color: var(--danger); 
+            border: none; 
+            padding: 8px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+            height: 36px;
+        }
+        
+        .btn-del:hover { 
+            background: var(--danger); 
+            color: #fff; 
+        }
+
+        /* COMPARTILHAMENTO */
+        .share-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .share-btn {
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            background: #fff;
+            color: var(--text-main);
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid var(--border);
+        }
+        
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+        
+        .share-btn.pdf { background: #f44336; color: white; border-color: #f44336; }
+        .share-btn.excel { background: #0d7044; color: white; border-color: #0d7044; }
+        .share-btn.csv { background: #2196f3; color: white; border-color: #2196f3; }
+        .share-btn.import { background: #9c27b0; color: white; border-color: #9c27b0; }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 25px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-sub);
+            cursor: pointer;
+        }
+        
+        .file-import-area {
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        .file-import-area:hover {
+            border-color: var(--primary);
+            background: #fff5f5;
+        }
+        
+        .file-import-area i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-sub);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #cfd8dc;
+        }
+
+        /* BOTÕES FLUTUANTES */
+        .floating-buttons {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        .floating-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: 0.3s;
+        }
+        
+        .floating-btn:hover {
+            transform: scale(1.1);
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 800px;
+                padding: 20px;
+            }
+            
+            .dashboard {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 16px;
+            }
+            
+            fieldset {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .share-options {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-header">
+        <h1><i class="fas fa-fire-extinguisher"></i> FireGuardian Pro</h1>
+        <p>Sistema de Gestão de Equipamentos de Combate a Incêndio</p>
+    </div>
+    
+    <div class="container">
+        <!-- NAVEGAÇÃO -->
+        <nav>
+            <button data-tab="dashboard" class="active">
+                <i class="fas fa-home"></i> Início
+            </button>
+            <button data-tab="lista">
+                <i class="fas fa-fire-extinguisher"></i> Equipamentos
+            </button>
+            <button data-tab="cadastro">
+                <i class="fas fa-plus-circle"></i> Novo
+            </button>
+            <button data-tab="compartilhar">
+                <i class="fas fa-share-alt"></i> Relatórios
+            </button>
+        </nav>
+        
+        <!-- DASHBOARD -->
+        <div id="dashboard" class="tab active">
+            <div class="card">
+                <h2 style="margin-top: 0; margin-bottom: 20px;">Resumo de Segurança</h2>
+                
+                <div class="dashboard">
+                    <div class="stat total" onclick="verLista('all')">
+                        <i class="fas fa-fire-extinguisher"></i>
+                        <strong id="total">0</strong>
+                        <span>Total</span>
+                    </div>
+                    <div class="stat ok" onclick="verLista('ok')">
+                        <i class="fas fa-check-circle"></i>
+                        <strong id="ok">0</strong>
+                        <span>Conforme</span>
+                    </div>
+                    <div class="stat warn" onclick="verLista('warn')">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong id="warn">0</strong>
+                        <span>Atenção</span>
+                    </div>
+                    <div class="stat danger" onclick="verLista('danger')">
+                        <i class="fas fa-times-circle"></i>
+                        <strong id="danger">0</strong>
+                        <span>Vencidos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- LISTA DE EQUIPAMENTOS -->
+        <div id="lista" class="tab">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2 style="margin: 0;">Equipamentos Cadastrados</h2>
+                    <span id="filtro-ativo"></span>
+                </div>
+                
+                <div id="filtro-info-container"></div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Equipamento</th>
+                                <th>Local</th>
+                                <th>Vencimento</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody"></tbody>
+                    </table>
+                </div>
+                
+                <div id="lista-vazia" class="empty-state" style="display: none;">
+                    <i class="fas fa-inbox"></i>
+                    <h3>Nenhum equipamento</h3>
+                    <p>Cadastre seu primeiro equipamento.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CADASTRO -->
+        <div id="cadastro" class="tab">
+            <div class="card">
+                <h2 style="margin-top: 0;">Cadastro de Equipamento</h2>
+                
+                <form id="form">
+                    <div class="field-group">
+                        <label>Usar modelo existente</label>
+                        <select id="modelo">
+                            <option value="">-- Selecione --</option>
+                        </select>
+                    </div>
+                    
+                    <fieldset>
+                        <legend>Informações do Equipamento</legend>
+                        
+                        <div class="field-group">
+                            <label>Tipo *</label>
+                            <select id="tipo" required>
+                                <option value="">Selecione</option>
+                                <option value="Extintor">Extintor</option>
+                                <option value="Mangueira">Mangueira</option>
+                                <option value="Hidrante">Hidrante</option>
+                                <option value="Alarme/Sensor">Alarme/Sensor</option>
+                                <option value="Sinalização">Sinalização</option>
+                                <option value="Iluminação de Emergência">Iluminação de Emergência</option>
+                            </select>
+                        </div>
+                        
+                        <div class="field-group">
+                            <label>Descrição *</label>
+                            <input type="text" id="descricao" required>
+                        </div>
+                        
+                        <div class="field-group">
+                            <label>Área *</label>
+                            <input type="text" id="area" required>
+                        </div>
+                        
+                        <div class="field-group">
+                            <label>Local *</label>
+                            <input type="text" id="local" required>
+                        </div>
+                    </fieldset>
+                    
+                    <fieldset>
+                        <legend>Cronograma</legend>
+                        
+                        <div class="field-group">
+                            <label>Última Inspeção *</label>
+                            <input type="date" id="ultima" required>
+                        </div>
+                        
+                        <div class="field-group">
+                            <label>Próxima Inspeção *</label>
+                            <input type="date" id="proxima" required>
+                        </div>
+                    </fieldset>
+                    
+                    <div class="field-group">
+                        <label>Observações</label>
+                        <textarea id="obs" rows="3"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i> SALVAR
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- COMPARTILHAR -->
+        <div id="compartilhar" class="tab">
+            <div class="card">
+                <h2 style="margin-top: 0;">Relatórios e Importação</h2>
+                
+                <div class="share-options">
+                    <button class="share-btn pdf" onclick="gerarPDF()">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>PDF</span>
+                    </button>
+                    <button class="share-btn excel" onclick="exportarExcel()">
+                        <i class="fas fa-file-excel"></i>
+                        <span>Excel</span>
+                    </button>
+                    <button class="share-btn csv" onclick="exportarCSV()">
+                        <i class="fas fa-file-csv"></i>
+                        <span>CSV</span>
+                    </button>
+                    <button class="share-btn import" onclick="abrirModalImportacao()">
+                        <i class="fas fa-file-import"></i>
+                        <span>Importar</span>
+                    </button>
+                </div>
+                
+                <div style="margin-top: 25px;">
+                    <h3>Equipamentos Críticos</h3>
+                    <div id="lista-compartilhamento"></div>
+                    
+                    <div id="compartilhar-vazio" class="empty-state">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Tudo em conformidade!</h3>
+                        <p>Não há equipamentos críticos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- BOTÕES FLUTUANTES -->
+    <div class="floating-buttons">
+        <button class="floating-btn" onclick="abrirModalImportacao()" title="Importar dados">
+            <i class="fas fa-file-import"></i>
+        </button>
+        <button class="floating-btn" onclick="openTab('cadastro')" title="Novo equipamento">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+    
+    <!-- MODAL DE IMPORTAÇÃO -->
+    <div id="modal-import" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Importar Dados</h3>
+                <button class="modal-close" onclick="fecharModalImportacao()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <p>Importe dados de planilhas Excel, CSV ou arquivos JSON.</p>
+            
+            <div class="file-import-area" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h4>Clique ou arraste arquivos aqui</h4>
+                <p>Suporta: Excel (.xlsx, .xls), CSV (.csv), JSON (.json)</p>
+                <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls,.csv,.json">
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <h4>Formato esperado:</h4>
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; font-size: 0.9rem;">
+                    <p><strong>Para Excel/CSV:</strong></p>
+                    <p>Colunas: Tipo, Descrição, Área, Local, Última Inspeção, Próxima Inspeção, Observações</p>
+                    <p><strong>Datas:</strong> Formato DD/MM/AAAA ou YYYY-MM-DD</p>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button onclick="downloadModeloExcel()" style="flex: 1; padding: 12px; background: #0d7044; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                    <i class="fas fa-download"></i> Baixar Modelo
+                </button>
+                <button onclick="fecharModalImportacao()" style="flex: 1; padding: 12px; background: #757575; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados da aplicação
+        let data = JSON.parse(localStorage.getItem('fire_equip') || '[]');
+        let modelos = JSON.parse(localStorage.getItem('fire_models') || '[]');
+        let filtroAtual = 'all';
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            const hoje = new Date();
+            const proximoMes = new Date();
+            proximoMes.setMonth(hoje.getMonth() + 1);
+            
+            document.getElementById('ultima').value = hoje.toISOString().split('T')[0];
+            document.getElementById('proxima').value = proximoMes.toISOString().split('T')[0];
+            
+            // Configurar input de arquivo
+            document.getElementById('fileInput').addEventListener('change', handleFileImport);
+            
+            render();
+        });
+        
+        // Gerenciamento de abas
+        function openTab(tabId) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`button[data-tab="${tabId}"]`).classList.add('active');
+        }
+        
+        document.querySelectorAll('nav button').forEach(b => {
+            b.addEventListener('click', () => openTab(b.dataset.tab));
+        });
+        
+        // Status dos equipamentos
+        function getStatus(item) {
+            const hoje = new Date();
+            const venc = new Date(item.proxima);
+            const diffDias = Math.ceil((venc - hoje) / (1000 * 60 * 60 * 24));
+            
+            if (diffDias < 0) return { label: 'Vencido', class: 'bg-danger', code: 'danger', dias: diffDias };
+            if (diffDias <= 30) return { label: 'Atenção', class: 'bg-warn', code: 'warn', dias: diffDias };
+            return { label: 'Conforme', class: 'bg-ok', code: 'ok', dias: diffDias };
+        }
+        
+        // Renderizar dados
+        function render() {
+            const tbody = document.getElementById('tbody');
+            const listaVazia = document.getElementById('lista-vazia');
+            const filtroInfo = document.getElementById('filtro-info-container');
+            
+            tbody.innerHTML = '';
+            filtroInfo.innerHTML = '';
+            
+            let counts = { total: 0, ok: 0, warn: 0, danger: 0 };
+            
+            // Contar e filtrar
+            const dadosFiltrados = data.filter(item => {
+                const s = getStatus(item);
+                counts.total++;
+                counts[s.code]++;
+                
+                if (filtroAtual === 'all' || filtroAtual === s.code) {
+                    return true;
+                }
+                return false;
+            });
+            
+            // Atualizar dashboard
+            document.getElementById('total').textContent = counts.total;
+            document.getElementById('ok').textContent = counts.ok;
+            document.getElementById('warn').textContent = counts.warn;
+            document.getElementById('danger').textContent = counts.danger;
+            
+            // Mostrar filtro ativo
+            if (filtroAtual !== 'all') {
+                const labels = { ok: 'Conforme', warn: 'Atenção', danger: 'Vencido' };
+                filtroInfo.innerHTML = `
+                    <div style="background: #e3f2fd; padding: 10px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between;">
+                        <span>Filtro: <strong>${labels[filtroAtual]}</strong> (${dadosFiltrados.length} equipamentos)</span>
+                        <button onclick="verLista('all')" style="background: none; border: none; color: #1565c0; cursor: pointer;">
+                            <i class="fas fa-times"></i> Limpar
+                        </button>
+                    </div>
+                `;
+            }
+            
+            // Preencher tabela
+            dadosFiltrados.forEach((item, index) => {
+                const s = getStatus(item);
+                const dataVenc = new Date(item.proxima);
+                const hoje = new Date();
+                const diffDias = Math.ceil((dataVenc - hoje) / (1000 * 60 * 60 * 24));
+                
+                let diasTexto = '';
+                if (diffDias < 0) {
+                    diasTexto = `<span style="color: #d32f2f;">${Math.abs(diffDias)} dias atrás</span>`;
+                } else if (diffDias <= 30) {
+                    diasTexto = `<span style="color: #ff9800;">${diffDias} dias</span>`;
+                } else {
+                    diasTexto = `<span style="color: #2e7d32;">${diffDias} dias</span>`;
+                }
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td><span class="status-badge ${s.class}">${s.label}</span></td>
+                        <td>
+                            <strong>${item.descricao}</strong><br>
+                            <small>${item.tipo}</small>
+                        </td>
+                        <td>${item.area}<br><small>${item.local}</small></td>
+                        <td>
+                            ${item.proxima.split('-').reverse().join('/')}<br>
+                            <small>${diasTexto}</small>
+                        </td>
+                        <td>
+                            <button class="btn-del" onclick="excluirEquipamento(${index})" title="Excluir">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            // Lista vazia
+            if (data.length === 0) {
+                listaVazia.style.display = 'block';
+            } else {
+                listaVazia.style.display = 'none';
+            }
+            
+            // Atualizar modelos
+            const selectModelo = document.getElementById('modelo');
+            selectModelo.innerHTML = '<option value="">-- Selecione --</option>';
+            modelos.forEach((m, i) => {
+                selectModelo.innerHTML += `<option value="${i}">${m.descricao} (${m.local})</option>`;
+            });
+            
+            // Atualizar lista de compartilhamento
+            atualizarListaCompartilhamento();
+        }
+        
+        // Funções de navegação
+        function verLista(status) {
+            filtroAtual = status;
+            render();
+            openTab('lista');
+        }
+        
+        function excluirEquipamento(index) {
+            if (confirm('Excluir este equipamento?')) {
+                data.splice(index, 1);
+                salvarDados();
+            }
+        }
+        
+        // Formulário
+        document.getElementById('modelo').addEventListener('change', function(e) {
+            const modelo = modelos[e.target.value];
+            if (modelo) {
+                document.getElementById('tipo').value = modelo.tipo;
+                document.getElementById('descricao').value = modelo.descricao;
+                document.getElementById('area').value = modelo.area;
+                document.getElementById('local').value = modelo.local;
+                document.getElementById('ultima').value = modelo.ultima;
+                document.getElementById('proxima').value = modelo.proxima;
+                document.getElementById('obs').value = modelo.obs || '';
+            }
+        });
+        
+        document.getElementById('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const novoEquipamento = {
+                tipo: document.getElementById('tipo').value,
+                descricao: document.getElementById('descricao').value,
+                area: document.getElementById('area').value,
+                local: document.getElementById('local').value,
+                ultima: document.getElementById('ultima').value,
+                proxima: document.getElementById('proxima').value,
+                obs: document.getElementById('obs').value
+            };
+            
+            data.push(novoEquipamento);
+            
+            // Adicionar aos modelos se não existir
+            if (!modelos.some(m => m.descricao === novoEquipamento.descricao && m.local === novoEquipamento.local)) {
+                modelos.push({...novoEquipamento});
+            }
+            
+            salvarDados();
+            this.reset();
+            
+            // Resetar datas
+            const hoje = new Date();
+            const proximoMes = new Date();
+            proximoMes.setMonth(hoje.getMonth() + 1);
+            
+            document.getElementById('ultima').value = hoje.toISOString().split('T')[0];
+            document.getElementById('proxima').value = proximoMes.toISOString().split('T')[0];
+            
+            alert('Equipamento salvo com sucesso!');
+        });
+        
+        function salvarDados() {
+            localStorage.setItem('fire_equip', JSON.stringify(data));
+            localStorage.setItem('fire_models', JSON.stringify(modelos));
+            render();
+        }
+        
+        // Lista de compartilhamento
+        function atualizarListaCompartilhamento() {
+            const lista = document.getElementById('lista-compartilhamento');
+            const vazio = document.getElementById('compartilhar-vazio');
+            
+            const equipamentosCriticos = data.filter(item => {
+                const s = getStatus(item);
+                return s.code === 'danger' || s.code === 'warn';
+            });
+            
+            if (equipamentosCriticos.length === 0) {
+                vazio.style.display = 'block';
+                lista.innerHTML = '';
+                return;
+            }
+            
+            vazio.style.display = 'none';
+            
+            let html = `
+                <div style="background: #fff8e1; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <strong>${equipamentosCriticos.length} equipamentos requerem atenção</strong>
+                </div>
+            `;
+            
+            equipamentosCriticos.forEach(item => {
+                const s = getStatus(item);
+                const diffDias = getStatus(item).dias;
+                const diasTexto = diffDias < 0 ? `${Math.abs(diffDias)} dias atrás` : `${diffDias} dias`;
+                
+                html += `
+                    <div style="background: #f5f5f5; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid ${s.code === 'danger' ? '#d32f2f' : '#ff9800'}">
+                        <div style="display: flex; justify-content: space-between;">
+                            <strong>${item.descricao}</strong>
+                            <span style="background: ${s.code === 'danger' ? '#ffcdd2' : '#ffecb3'}; padding: 2px 8px; border-radius: 12px; font-size: 0.85rem;">
+                                ${diasTexto}
+                            </span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666; margin-top: 5px;">
+                            ${item.area} - ${item.local} | Vence: ${item.proxima.split('-').reverse().join('/')}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            lista.innerHTML = html;
+        }
+        
+        // GERAR PDF
+        function gerarPDF() {
+            if (data.length === 0) {
+                alert('Não há dados para gerar PDF!');
+                return;
+            }
+            
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Cabeçalho
+                doc.setFontSize(20);
+                doc.setTextColor(211, 47, 47);
+                doc.text("FireGuardian Pro - Relatório", 20, 20);
+                
+                doc.setFontSize(11);
+                doc.setTextColor(100, 100, 100);
+                doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, 20, 30);
+                doc.text(`Total: ${data.length} equipamentos`, 20, 37);
+                
+                // Contar status
+                let counts = { ok: 0, warn: 0, danger: 0 };
+                data.forEach(item => {
+                    const s = getStatus(item);
+                    counts[s.code]++;
+                });
+                
+                // Resumo
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.text("Resumo:", 20, 50);
+                
+                doc.setFillColor(46, 125, 50);
+                doc.rect(25, 58, 5, 5, 'F');
+                doc.setTextColor(46, 125, 50);
+                doc.text(`Conforme: ${counts.ok}`, 35, 62);
+                
+                doc.setFillColor(255, 152, 0);
+                doc.rect(25, 68, 5, 5, 'F');
+                doc.setTextColor(255, 152, 0);
+                doc.text(`Atenção: ${counts.warn}`, 35, 72);
+                
+                doc.setFillColor(198, 40, 40);
+                doc.rect(25, 78, 5, 5, 'F');
+                doc.setTextColor(198, 40, 40);
+                doc.text(`Vencidos: ${counts.danger}`, 35, 82);
+                
+                // Tabela
+                const headers = [["Tipo", "Descrição", "Local", "Vencimento", "Status"]];
+                const rows = data.map(item => {
+                    const s = getStatus(item);
+                    return [
+                        item.tipo,
+                        item.descricao,
+                        `${item.area} - ${item.local}`,
+                        item.proxima.split('-').reverse().join('/'),
+                        s.label
+                    ];
+                });
+                
+                doc.autoTable({
+                    head: headers,
+                    body: rows,
+                    startY: 95,
+                    theme: 'grid',
+                    headStyles: { fillColor: [211, 47, 47] }
+                });
+                
+                // Salvar
+                doc.save(`relatorio_fireguardian_${new Date().toISOString().slice(0,10)}.pdf`);
+                
+                alert(`PDF gerado com ${data.length} equipamentos!`);
+            } catch (error) {
+                console.error('Erro ao gerar PDF:', error);
+                alert('Erro ao gerar PDF. Verifique se as bibliotecas estão carregadas.');
+            }
+        }
+        
+        // EXPORTAR EXCEL
+        function exportarExcel() {
+            if (data.length === 0) {
+                alert('Não há dados para exportar!');
+                return;
+            }
+            
+            try {
+                // Converter dados para worksheet
+                const dadosFormatados = data.map(item => {
+                    const s = getStatus(item);
+                    return {
+                        'Tipo': item.tipo,
+                        'Descrição': item.descricao,
+                        'Área': item.area,
+                        'Local': item.local,
+                        'Última Inspeção': item.ultima,
+                        'Próxima Inspeção': item.proxima,
+                        'Status': s.label,
+                        'Observações': item.obs || ''
+                    };
+                });
+                
+                const ws = XLSX.utils.json_to_sheet(dadosFormatados);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Equipamentos");
+                
+                XLSX.writeFile(wb, `equipamentos_fireguardian_${new Date().toISOString().slice(0,10)}.xlsx`);
+                
+                alert(`Excel exportado com ${data.length} equipamentos!`);
+            } catch (error) {
+                console.error('Erro ao exportar Excel:', error);
+                alert('Erro ao exportar Excel.');
+            }
+        }
+        
+        // EXPORTAR CSV
+        function exportarCSV() {
+            if (data.length === 0) {
+                alert('Não há dados para exportar!');
+                return;
+            }
+            
+            try {
+                let csv = 'Tipo;Descrição;Área;Local;Última Inspeção;Próxima Inspeção;Observações\n';
+                
+                data.forEach(item => {
+                    csv += `"${item.tipo}";"${item.descricao}";"${item.area}";"${item.local}";"${item.ultima}";"${item.proxima}";"${item.obs || ''}"\n`;
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                saveAs(blob, `equipamentos_fireguardian_${new Date().toISOString().slice(0,10)}.csv`);
+                
+                alert(`CSV exportado com ${data.length} equipamentos!`);
+            } catch (error) {
+                console.error('Erro ao exportar CSV:', error);
+                alert('Erro ao exportar CSV.');
+            }
+        }
+        
+        // IMPORTAR DADOS - FUNÇÃO PRINCIPAL CORRIGIDA
+        function handleFileImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const content = e.target.result;
+                    const fileName = file.name.toLowerCase();
+                    
+                    let importedData = [];
+                    
+                    if (fileName.endsWith('.json')) {
+                        // Importar JSON
+                        const jsonData = JSON.parse(content);
+                        if (jsonData.equipamentos && Array.isArray(jsonData.equipamentos)) {
+                            importedData = jsonData.equipamentos;
+                        } else if (Array.isArray(jsonData)) {
+                            importedData = jsonData;
+                        } else {
+                            throw new Error('Formato JSON inválido');
+                        }
+                    } 
+                    else if (fileName.endsWith('.csv')) {
+                        // Importar CSV
+                        const results = Papa.parse(content, {
+                            header: true,
+                            delimiter: ';',
+                            skipEmptyLines: true
+                        });
+                        
+                        importedData = results.data.filter(row => row.Tipo).map(row => ({
+                            tipo: row.Tipo || row.tipo,
+                            descricao: row.Descrição || row.descricao || row.Descricao,
+                            area: row.Área || row.area || row.Area,
+                            local: row.Local || row.local,
+                            ultima: formatarData(row['Última Inspeção'] || row.ultima || row['Ultima Inspecao']),
+                            proxima: formatarData(row['Próxima Inspeção'] || row.proxima || row['Proxima Inspecao']),
+                            obs: row.Observações || row.obs || row.Observacoes || ''
+                        }));
+                    }
+                    else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+                        // Importar Excel
+                        const workbook = XLSX.read(content, { type: 'binary' });
+                        const sheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[sheetName];
+                        const excelData = XLSX.utils.sheet_to_json(worksheet);
+                        
+                        importedData = excelData.filter(row => row.Tipo).map(row => ({
+                            tipo: row.Tipo || row.tipo,
+                            descricao: row.Descrição || row.descricao || row.Descricao,
+                            area: row.Área || row.area || row.Area,
+                            local: row.Local || row.local,
+                            ultima: formatarData(row['Última Inspeção'] || row.ultima || row['Ultima Inspecao']),
+                            proxima: formatarData(row['Próxima Inspeção'] || row.proxima || row['Proxima Inspecao']),
+                            obs: row.Observações || row.obs || row.Observacoes || ''
+                        }));
+                    }
+                    
+                    if (importedData.length === 0) {
+                        alert('Nenhum dado válido encontrado no arquivo.');
+                        return;
+                    }
+                    
+                    // Confirmar importação
+                    if (confirm(`Importar ${importedData.length} equipamentos?`)) {
+                        // Adicionar aos dados existentes
+                        data.push(...importedData);
+                        
+                        // Adicionar aos modelos
+                        importedData.forEach(item => {
+                            if (!modelos.some(m => m.descricao === item.descricao && m.local === item.local)) {
+                                modelos.push({...item});
+                            }
+                        });
+                        
+                        salvarDados();
+                        fecharModalImportacao();
+                        
+                        alert(`${importedData.length} equipamentos importados com sucesso!`);
+                    }
+                    
+                } catch (error) {
+                    console.error('Erro na importação:', error);
+                    alert('Erro ao importar arquivo. Verifique o formato.');
+                }
+            };
+            
+            if (file.name.toLowerCase().endsWith('.json') || file.name.toLowerCase().endsWith('.csv')) {
+                reader.readAsText(file);
+            } else {
+                reader.readAsBinaryString(file);
+            }
+        }
+        
+        // Função auxiliar para formatar datas
+        function formatarData(dataStr) {
+            if (!dataStr) return new Date().toISOString().split('T')[0];
+            
+            // Tentar vários formatos
+            try {
+                // Formato YYYY-MM-DD
+                if (/^\d{4}-\d{2}-\d{2}$/.test(dataStr)) {
+                    return dataStr;
+                }
+                
+                // Formato DD/MM/YYYY
+                if (/^\d{2}\/\d{2}\/\d{4}$/.test(dataStr)) {
+                    const parts = dataStr.split('/');
+                    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+                }
+                
+                // Formato DD-MM-YYYY
+                if (/^\d{2}-\d{2}-\d{4}$/.test(dataStr)) {
+                    const parts = dataStr.split('-');
+                    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+                }
+                
+                // Tentar parsear como Date
+                const date = new Date(dataStr);
+                if (!isNaN(date)) {
+                    return date.toISOString().split('T')[0];
+                }
+            } catch (e) {
+                console.warn('Erro ao formatar data:', dataStr, e);
+            }
+            
+            // Retornar data atual como fallback
+            return new Date().toISOString().split('T')[0];
+        }
+        
+        // Baixar modelo Excel
+        function downloadModeloExcel() {
+            const modelo = [
+                {
+                    'Tipo': 'Extintor',
+                    'Descrição': 'Pó Químico ABC 4KG',
+                    'Área': 'Térreo',
+                    'Local': 'Corredor Principal',
+                    'Última Inspeção': '2024-01-15',
+                    'Próxima Inspeção': '2024-07-15',
+                    'Observações': 'Equipamento em bom estado'
+                },
+                {
+                    'Tipo': 'Mangueira',
+                    'Descrição': 'Mangueira de Incêndio 30m',
+                    'Área': '1º Andar',
+                    'Local': 'Hall do Escritório',
+                    'Última Inspeção': '2024-02-20',
+                    'Próxima Inspeção': '2024-08-20',
+                    'Observações': ''
+                }
+            ];
+            
+            const ws = XLSX.utils.json_to_sheet(modelo);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Modelo");
+            
+            XLSX.writeFile(wb, 'modelo_importacao_fireguardian.xlsx');
+            alert('Modelo baixado com sucesso!');
+        }
+        
+        // Modal
+        function abrirModalImportacao() {
+            document.getElementById('modal-import').classList.add('active');
+        }
+        
+        function fecharModalImportacao() {
+            document.getElementById('modal-import').classList.remove('active');
+            document.getElementById('fileInput').value = '';
+        }
+        
+        // Fechar modal ao clicar fora
+        document.getElementById('modal-import').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharModalImportacao();
+            }
+        });
+        
+        // Renderizar inicialmente
+        render();
+    </script>
+</body>
+</html>
