@@ -72,13 +72,17 @@
 
         /* MODO LEITURA INDICADOR */
         .readonly-banner {
-            background: #ff9800;
-            color: #000;
+            background: linear-gradient(90deg, #ff9800, #f57c00);
+            color: #fff;
             text-align: center;
-            padding: 5px;
-            font-size: 0.8rem;
+            padding: 8px;
+            font-size: 0.85rem;
             font-weight: bold;
             display: none;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
         /* NAVEGAÇÃO PRINCIPAL */
@@ -88,6 +92,7 @@
             margin-bottom: 20px;
             overflow-x: auto;
             padding-bottom: 5px;
+            -webkit-overflow-scrolling: touch;
         }
         
         .main-nav button {
@@ -99,7 +104,7 @@
             font-weight: 600; 
             background: #fff;
             color: var(--text-sub); 
-            transition: 0.3s;
+            transition: all 0.3s ease;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             font-size: 0.8rem;
             display: flex;
@@ -107,6 +112,12 @@
             justify-content: center;
             gap: 6px;
             min-width: 110px;
+            white-space: nowrap;
+        }
+        
+        .main-nav button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
         .main-nav button.active { 
@@ -122,6 +133,7 @@
             margin-bottom: 15px;
             overflow-x: auto;
             padding-bottom: 5px;
+            -webkit-overflow-scrolling: touch;
         }
         
         .org-tab {
@@ -132,13 +144,14 @@
             cursor: pointer;
             font-size: 0.85rem;
             white-space: nowrap;
-            transition: 0.2s;
+            transition: all 0.2s;
         }
         
         .org-tab.active {
             background: var(--primary);
             color: white;
             border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(211, 47, 47, 0.3);
         }
         
         .add-tab-btn {
@@ -152,11 +165,13 @@
             align-items: center;
             gap: 5px;
             font-size: 0.85rem;
+            transition: all 0.2s;
         }
         
         .add-tab-btn:hover {
             border-color: var(--primary);
             color: var(--primary);
+            background: #fff5f5;
         }
 
         /* BUSCA AVANÇADA */
@@ -172,11 +187,12 @@
             border: 2px solid var(--border);
             font-size: 1rem;
             outline: none;
-            transition: 0.3s;
+            transition: all 0.3s;
         }
         
         .search-input:focus {
             border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
         }
         
         .search-btn {
@@ -189,6 +205,7 @@
             color: var(--text-sub);
             font-size: 1.2rem;
             cursor: pointer;
+            padding: 8px;
         }
 
         .card {
@@ -198,6 +215,7 @@
             box-shadow: var(--shadow); 
             margin-bottom: 20px;
             border: 1px solid var(--border);
+            transition: transform 0.2s;
         }
 
         .tab { 
@@ -227,15 +245,29 @@
             color: #fff; 
             text-align: center;
             cursor: pointer; 
-            transition: transform 0.2s;
+            transition: all 0.3s;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
         
         .stat:hover { 
-            transform: scale(1.03); 
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .stat::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+            pointer-events: none;
         }
         
         .stat i { 
@@ -249,8 +281,9 @@
         .stat.danger { background: linear-gradient(135deg, var(--danger), #b71c1c); }
         
         .stat strong { 
-            font-size: 1.6rem; 
-            display: block; 
+            font-size: 1.8rem; 
+            display: block;
+            margin: 5px 0;
         }
 
         /* FORMULÁRIO - ESTILOS ESPECÍFICOS */
@@ -278,13 +311,14 @@
             border-radius: 10px; 
             border: 2px solid #edf2f7;
             font-size: 0.95rem; 
-            transition: 0.3s; 
+            transition: all 0.3s; 
             outline: none;
             width: 100%;
         }
         
         input:focus, select:focus, textarea:focus { 
-            border-color: var(--primary); 
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
         }
 
         fieldset {
@@ -312,7 +346,7 @@
             cursor: pointer;
             padding: 8px;
             border-radius: 6px;
-            transition: 0.2s;
+            transition: all 0.2s;
         }
         
         .btn-icon:hover {
@@ -328,7 +362,7 @@
         }
 
         .btn-save {
-            background: var(--primary); 
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
             color: #fff; 
             border: none;
             padding: 16px 30px; 
@@ -338,21 +372,24 @@
             font-size: 1rem; 
             width: 100%; 
             margin-top: 10px;
-            transition: background 0.3s;
+            transition: all 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
         }
         
         .btn-save:hover { 
-            background: var(--primary-dark); 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(211, 47, 47, 0.4);
         }
 
         /* TABELA */
         .table-container { 
             overflow-x: auto; 
             margin-top: 10px;
+            -webkit-overflow-scrolling: touch;
         }
         
         table { 
@@ -369,6 +406,9 @@
             letter-spacing: 0.5px;
             padding: 14px 10px;
             font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
         
         td { 
@@ -391,6 +431,7 @@
             display: inline-block;
             text-align: center;
             min-width: 100px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .bg-ok { background: var(--ok); }
@@ -404,7 +445,7 @@
             padding: 8px; 
             border-radius: 8px; 
             cursor: pointer; 
-            transition: 0.2s;
+            transition: all 0.2s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -415,6 +456,7 @@
         .btn-del:hover { 
             background: var(--danger); 
             color: #fff; 
+            transform: scale(1.1);
         }
 
         /* COMPARTILHAMENTO */
@@ -433,7 +475,7 @@
             color: var(--text-main);
             font-weight: 600;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.3s;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             display: flex;
             flex-direction: column;
@@ -444,14 +486,15 @@
         }
         
         .share-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
         }
         
-        .share-btn.pdf { background: #f44336; color: white; border-color: #f44336; }
-        .share-btn.excel { background: #0d7044; color: white; border-color: #0d7044; }
-        .share-btn.csv { background: #2196f3; color: white; border-color: #2196f3; }
-        .share-btn.import { background: #9c27b0; color: white; border-color: #9c27b0; }
+        .share-btn.pdf { background: linear-gradient(135deg, #f44336, #d32f2f); color: white; border: none; }
+        .share-btn.excel { background: linear-gradient(135deg, #0d7044, #1b5e20); color: white; border: none; }
+        .share-btn.csv { background: linear-gradient(135deg, #2196f3, #1565c0); color: white; border: none; }
+        .share-btn.import { background: linear-gradient(135deg, #9c27b0, #7b1fa2); color: white; border: none; }
+        .share-btn.link { background: linear-gradient(135deg, #00bcd4, #0097a7); color: white; border: none; }
 
         /* MODAL */
         .modal {
@@ -466,6 +509,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            backdrop-filter: blur(5px);
         }
         
         .modal.active {
@@ -481,6 +525,12 @@
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlide 0.3s ease;
+        }
+        
+        @keyframes modalSlide {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .modal-header {
@@ -503,6 +553,14 @@
             font-size: 1.5rem;
             color: var(--text-sub);
             cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        
+        .modal-close:hover {
+            background: #f5f5f5;
+            color: var(--danger);
         }
         
         .file-import-area {
@@ -512,7 +570,7 @@
             text-align: center;
             margin: 20px 0;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.3s;
         }
         
         .file-import-area:hover {
@@ -550,7 +608,7 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
             border: none;
             cursor: pointer;
@@ -559,12 +617,12 @@
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
-            transition: 0.3s;
+            transition: all 0.3s;
             z-index: 1000;
         }
         
         .floating-main-btn:hover {
-            transform: scale(1.1);
+            transform: scale(1.1) rotate(90deg);
             box-shadow: 0 6px 25px rgba(211, 47, 47, 0.5);
         }
         
@@ -579,7 +637,7 @@
             transform: translateY(20px);
             opacity: 0;
             visibility: hidden;
-            transition: 0.3s;
+            transition: all 0.3s;
         }
         
         .floating-menu.active {
@@ -601,7 +659,7 @@
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
-            transition: 0.3s;
+            transition: all 0.3s;
         }
         
         .floating-menu-btn:hover {
@@ -616,6 +674,12 @@
             border: 1px solid var(--border);
             margin-bottom: 10px;
             background: white;
+            transition: all 0.2s;
+        }
+        
+        .equipamento-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateX(5px);
         }
         
         .equipamento-header {
@@ -643,19 +707,22 @@
 
         /* SHARE LINK */
         .share-link-container {
-            background: #e8f5e9;
-            padding: 15px;
-            border-radius: 10px;
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            padding: 20px;
+            border-radius: 12px;
             margin-top: 15px;
+            border: 1px solid #a5d6a7;
         }
         
         .share-link-input {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #c8e6c9;
-            border-radius: 5px;
+            border-radius: 8px;
             margin: 10px 0;
             background: white;
+            font-family: monospace;
+            font-size: 0.9rem;
         }
 
         /* LIXEIRA PARA TIPO DE EQUIPAMENTO - ESTILO ESPECÍFICO */
@@ -680,8 +747,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: 0.2s;
+            transition: all 0.2s;
             flex-shrink: 0;
+        }
+        
+        .btn-lixeira-tipo:hover {
+            background: #ffcdd2;
+            transform: scale(1.05);
         }
         
         .btn-lixeira-tipo:active {
@@ -700,10 +772,15 @@
             border: 1px solid var(--border);
             border-radius: 12px;
             overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .area-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         }
         
         .area-header {
-            background: #f5f7fa;
+            background: linear-gradient(135deg, #f5f7fa, #e0e0e0);
             padding: 12px 15px;
             border-bottom: 1px solid var(--border);
             display: flex;
@@ -737,6 +814,11 @@
             border-radius: 8px;
             margin-bottom: 10px;
             background: white;
+            transition: all 0.2s;
+        }
+        
+        .equipamento-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
         }
         
         .equipamento-info {
@@ -761,6 +843,41 @@
         
         .equipamento-status {
             margin-left: 10px;
+        }
+
+        /* TIMER DISPLAY */
+        .timer-display {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 1px solid #ffcc80;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .timer-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .timer-icon {
+            font-size: 1.5rem;
+            color: #ff9800;
+        }
+        
+        .timer-text {
+            font-weight: 600;
+            color: #e65100;
+        }
+        
+        .timer-countdown {
+            font-family: monospace;
+            font-size: 1.2rem;
+            color: #d32f2f;
+            font-weight: bold;
         }
 
         @media (min-width: 768px) {
@@ -792,6 +909,36 @@
         }
 
         .hidden { display: none !important; }
+        
+        /* ALERTA CUSTOMIZADO */
+        .custom-alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 3000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .custom-alert.show {
+            transform: translateX(0);
+        }
+        
+        .custom-alert.success {
+            border-left-color: var(--ok);
+        }
+        
+        .custom-alert.error {
+            border-left-color: var(--danger);
+        }
     </style>
 </head>
 <body>
@@ -1052,7 +1199,7 @@
             </div>
         </div>
         
-        <!-- COMPARTILHAR ACESSO - MANTIDO COMO ESTÁ -->
+        <!-- COMPARTILHAR ACESSO -->
         <div id="compartilhar" class="tab">
             <div class="card">
                 <h2 style="margin-top: 0;">Relatórios e Compartilhamento</h2>
@@ -1083,23 +1230,34 @@
                         <div style="margin-bottom: 10px;">
                             <label>Duração do Link:</label>
                             <select id="duracaoLink" style="width: 100%; padding: 8px; border-radius: 5px; margin-top: 5px;">
-                                <option value="1">1 Hora</option>
-                                <option value="5">5 Horas</option>
-                                <option value="24">1 Dia</option>
+                                <option value="15">15 Minutos</option>
+                                <option value="30">30 Minutos</option>
+                                <option value="60">1 Hora</option>
+                                <option value="120">2 Horas</option>
+                                <option value="300">5 Horas</option>
+                                <option value="1440">1 Dia</option>
                             </select>
                         </div>
-                        <button onclick="gerarLinkCompartilhamento()" style="padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%;">
+                        <button onclick="gerarLinkCompartilhamento()" style="padding: 12px 20px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: 600; transition: all 0.3s;">
                             <i class="fas fa-link"></i> Gerar Link de Compartilhamento
                         </button>
-                        <div id="share-link-result" style="margin-top: 15px; padding: 10px; background: #fff; border: 1px dashed #ccc; border-radius: 5px; display: none;">
-                            <strong>Link temporário:</strong><br>
-                            <span id="url-texto" style="color: blue; word-break: break-all;"></span>
-                            <p style="font-size: 0.7rem; color: #d32f2f; margin-top:5px;">
-                                *Nota: Como este sistema não possui servidor online, este link funcionará apenas para simular o modo "Apenas Leitura" neste dispositivo.
-                            </p>
-                            <button onclick="copiarLink()" style="margin-top:10px; padding:5px 10px; border:1px solid #ccc; background:#fff; border-radius:4px; width: 100%;">
-                                <i class="fas fa-copy"></i> Copiar Link
-                            </button>
+                        <div id="share-link-result" style="margin-top: 15px; display: none;">
+                            <div style="background: white; padding: 15px; border-radius: 8px; border: 2px dashed #ccc;">
+                                <strong style="color: var(--primary);"><i class="fas fa-clock"></i> Link válido por <span id="tempo-validade"></span></strong>
+                                <input type="text" id="url-input" class="share-link-input" readonly>
+                                <div style="display: flex; gap: 10px;">
+                                    <button onclick="copiarLink()" style="flex: 1; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                        <i class="fas fa-copy"></i> Copiar
+                                    </button>
+                                    <button onclick="compartilharNativo()" style="flex: 1; padding: 10px; background: #25d366; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                        <i class="fas fa-share-alt"></i> Compartilhar
+                                    </button>
+                                </div>
+                                <div id="timer-container" style="margin-top: 10px; padding: 10px; background: #fff3e0; border-radius: 6px; border-left: 3px solid #ff9800;">
+                                    <i class="fas fa-hourglass-half" style="color: #ff9800;"></i>
+                                    <span style="font-size: 0.9rem; color: #e65100; font-weight: 600;">Expira em: <span id="contador-regressivo" style="font-family: monospace; font-size: 1.1rem;">--:--</span></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1145,10 +1303,10 @@
             </div>
             
             <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button onclick="adicionarNovaAba()" style="flex: 1; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">
+                <button onclick="adicionarNovaAba()" style="flex: 1; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
                     Adicionar
                 </button>
-                <button onclick="fecharModalNovaAba()" style="flex: 1; padding: 12px; background: #757575; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                <button onclick="fecharModalNovaAba()" style="flex: 1; padding: 12px; background: #757575; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
                     Cancelar
                 </button>
             </div>
@@ -1177,7 +1335,7 @@
                     <label>Adicionar novo tipo</label>
                     <div class="field-row">
                         <input type="text" id="novo-tipo" placeholder="Ex: Mangueira de Incêndio">
-                        <button onclick="adicionarTipo()" style="padding: 10px 15px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">
+                        <button onclick="adicionarTipo()" style="padding: 10px 15px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
                             Adicionar
                         </button>
                     </div>
@@ -1185,7 +1343,7 @@
             </div>
             
             <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button onclick="fecharModalEditarTipos()" style="flex: 1; padding: 12px; background: #757575; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                <button onclick="fecharModalEditarTipos()" style="flex: 1; padding: 12px; background: #757575; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
                     Fechar
                 </button>
             </div>
@@ -1212,10 +1370,10 @@
             </div>
             
             <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button onclick="downloadModeloExcel()" style="flex: 1; padding: 12px; background: #0d7044; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                <button onclick="downloadModeloExcel()" style="flex: 1; padding: 12px; background: #0d7044; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
                     <i class="fas fa-download"></i> Baixar Modelo
                 </button>
-                <button onclick="fecharModalImportacao()" style="flex: 1; padding: 12px; background: #757575; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                <button onclick="fecharModalImportacao()" style="flex: 1; padding: 12px; background: #757575; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
                     Cancelar
                 </button>
             </div>
@@ -1232,6 +1390,8 @@
         let abaOrganizacaoAtual = 'all';
         let shareLinks = JSON.parse(localStorage.getItem('fire_share_links') || '[]');
         let modoLeitura = false;
+        let timerInterval = null;
+        let linkAtual = null;
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
@@ -1269,6 +1429,9 @@
             
             // Verificar modo leitura
             verificarModoLeitura();
+            
+            // Verificar timer ativo
+            verificarTimerAtivo();
         });
         
         // Verificar modo leitura
@@ -1291,7 +1454,7 @@
                 // Força ir para dashboard
                 openTab('dashboard');
                 
-                alert("Você está em modo de VISUALIZAÇÃO. Edições estão desativadas.");
+                mostrarAlerta('Você está em modo de VISUALIZAÇÃO. Edições estão desativadas.', 'info');
             }
         }
         
@@ -1500,13 +1663,14 @@
         
         function excluirEquipamento(index) {
             if (modoLeitura) {
-                alert("Modo leitura: Ação não permitida.");
+                mostrarAlerta('Modo leitura: Ação não permitida.', 'error');
                 return;
             }
             
             if (confirm('Excluir este equipamento?')) {
                 data.splice(index, 1);
                 salvarDados();
+                mostrarAlerta('Equipamento excluído com sucesso!', 'success');
             }
         }
         
@@ -1567,7 +1731,7 @@
             e.preventDefault();
             
             if (modoLeitura) {
-                alert("Modo leitura: Ação não permitida.");
+                mostrarAlerta('Modo leitura: Ação não permitida.', 'error');
                 return;
             }
             
@@ -1611,7 +1775,7 @@
             // Ocultar chave Storz
             document.getElementById('chave-storz-container').style.display = 'none';
             
-            alert('Equipamento salvo com sucesso!');
+            mostrarAlerta('Equipamento salvo com sucesso!', 'success');
             openTab('lista');
         });
         
@@ -1796,7 +1960,7 @@
         // MODAL: NOVA ABA
         function abrirModalNovaAba() {
             if (modoLeitura) {
-                alert("Modo leitura: Ação não permitida.");
+                mostrarAlerta('Modo leitura: Ação não permitida.', 'error');
                 return;
             }
             document.getElementById('modal-nova-aba').classList.add('active');
@@ -1813,14 +1977,14 @@
             const area = document.getElementById('nova-aba-area').value.trim();
             
             if (!nome) {
-                alert('Digite um nome para a aba');
+                mostrarAlerta('Digite um nome para a aba', 'error');
                 return;
             }
             
             const id = nome.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
             
             if (abasOrganizacao.some(aba => aba.id === id)) {
-                alert('Já existe uma aba com esse nome');
+                mostrarAlerta('Já existe uma aba com esse nome', 'error');
                 return;
             }
             
@@ -1839,6 +2003,8 @@
             document.querySelectorAll('.org-tab').forEach(t => t.classList.remove('active'));
             document.querySelector(`.org-tab[data-area="${id}"]`).classList.add('active');
             renderizarConteudoOrganizacaoCards();
+            
+            mostrarAlerta('Aba adicionada com sucesso!', 'success');
         }
         
         // TIPOS DE EQUIPAMENTO - COM LIXEIRA
@@ -1853,7 +2019,7 @@
         
         function excluirTipoAtual() {
             if (modoLeitura) {
-                alert("Modo leitura: Ação não permitida.");
+                mostrarAlerta('Modo leitura: Ação não permitida.', 'error');
                 return;
             }
             
@@ -1861,7 +2027,7 @@
             const tipoAtual = input.value;
 
             if (!tipoAtual) {
-                alert('Selecione um tipo para excluir.');
+                mostrarAlerta('Selecione um tipo para excluir.', 'error');
                 return;
             }
 
@@ -1872,6 +2038,7 @@
                     salvarTipos();
                     input.value = "";
                     carregarTiposDatalist();
+                    mostrarAlerta('Tipo excluído com sucesso!', 'success');
                 }
             }
         }
@@ -1884,7 +2051,7 @@
         // MODAL: EDITAR TIPOS
         function abrirModalEditarTipos() {
             if (modoLeitura) {
-                alert("Modo leitura: Ação não permitida.");
+                mostrarAlerta('Modo leitura: Ação não permitida.', 'error');
                 return;
             }
             
@@ -1918,12 +2085,12 @@
             const novoTipo = document.getElementById('novo-tipo').value.trim().toUpperCase();
             
             if (!novoTipo) {
-                alert('Digite um tipo de equipamento');
+                mostrarAlerta('Digite um tipo de equipamento', 'error');
                 return;
             }
             
             if (tiposEquipamento.includes(novoTipo)) {
-                alert('Este tipo já existe');
+                mostrarAlerta('Este tipo já existe', 'error');
                 return;
             }
             
@@ -1932,6 +2099,7 @@
             carregarTiposDatalist();
             abrirModalEditarTipos(); // Recarregar a lista
             document.getElementById('novo-tipo').value = '';
+            mostrarAlerta('Tipo adicionado com sucesso!', 'success');
         }
         
         function removerTipo(index) {
@@ -1940,26 +2108,129 @@
                 salvarTipos();
                 carregarTiposDatalist();
                 abrirModalEditarTipos(); // Recarregar a lista
+                mostrarAlerta('Tipo removido com sucesso!', 'success');
             }
         }
         
-        // COMPARTILHAMENTO
+        // COMPARTILHAMENTO MELHORADO
         function gerarLinkCompartilhamento() {
-            const duracao = document.getElementById('duracaoLink').value;
+            const duracaoMinutos = parseInt(document.getElementById('duracaoLink').value);
             const timestamp = Date.now();
-            // Simulação de Token
-            const token = btoa(JSON.stringify({ exp: timestamp + (duracao * 3600000) }));
+            const expiracao = timestamp + (duracaoMinutos * 60 * 1000); // Converter minutos para ms
             
-            // Criando URL com hash parameters
+            // Criar objeto do link
+            const linkData = {
+                exp: expiracao,
+                created: timestamp,
+                data: data // Incluir dados para visualização
+            };
+            
+            // Codificar dados
+            const token = btoa(JSON.stringify(linkData));
+            
+            // Criar URL
             const url = `${window.location.origin}${window.location.pathname}?mode=readonly&token=${token}`;
             
+            // Salvar link ativo
+            linkAtual = {
+                url: url,
+                expiracao: expiracao,
+                duracao: duracaoMinutos
+            };
+            
+            // Salvar no localStorage para persistência
+            localStorage.setItem('fire_active_share', JSON.stringify(linkAtual));
+            
+            // Mostrar resultado
             document.getElementById('share-link-result').style.display = 'block';
-            document.getElementById('url-texto').innerText = url;
+            document.getElementById('tempo-validade').textContent = formatarDuracao(duracaoMinutos);
+            document.getElementById('url-input').value = url;
+            
+            // Iniciar contador
+            iniciarContador(expiracao);
+            
+            mostrarAlerta('Link gerado com sucesso!', 'success');
+        }
+        
+        function formatarDuracao(minutos) {
+            if (minutos < 60) return `${minutos} minutos`;
+            if (minutos === 60) return '1 hora';
+            if (minutos < 1440) return `${minutos / 60} horas`;
+            return '1 dia';
+        }
+        
+        function iniciarContador(expiracao) {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            function atualizar() {
+                const agora = Date.now();
+                const restante = expiracao - agora;
+                
+                if (restante <= 0) {
+                    document.getElementById('contador-regressivo').textContent = 'EXPIRADO';
+                    document.getElementById('contador-regressivo').style.color = '#d32f2f';
+                    if (timerInterval) clearInterval(timerInterval);
+                    return;
+                }
+                
+                const minutos = Math.floor(restante / 60000);
+                const segundos = Math.floor((restante % 60000) / 1000);
+                document.getElementById('contador-regressivo').textContent = 
+                    `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+            }
+            
+            atualizar();
+            timerInterval = setInterval(atualizar, 1000);
+        }
+        
+        function verificarTimerAtivo() {
+            const saved = localStorage.getItem('fire_active_share');
+            if (saved) {
+                const link = JSON.parse(saved);
+                if (link.expiracao > Date.now()) {
+                    linkAtual = link;
+                    document.getElementById('share-link-result').style.display = 'block';
+                    document.getElementById('tempo-validade').textContent = formatarDuracao(link.duracao);
+                    document.getElementById('url-input').value = link.url;
+                    iniciarContador(link.expiracao);
+                } else {
+                    localStorage.removeItem('fire_active_share');
+                }
+            }
         }
         
         function copiarLink() {
-            const url = document.getElementById('url-texto').innerText;
-            navigator.clipboard.writeText(url).then(() => alert("Link copiado!"));
+            const urlInput = document.getElementById('url-input');
+            urlInput.select();
+            urlInput.setSelectionRange(0, 99999); // Para mobile
+            
+            navigator.clipboard.writeText(urlInput.value).then(() => {
+                mostrarAlerta('Link copiado para a área de transferência!', 'success');
+            }).catch(() => {
+                // Fallback
+                document.execCommand('copy');
+                mostrarAlerta('Link copiado!', 'success');
+            });
+        }
+        
+        function compartilharNativo() {
+            const url = document.getElementById('url-input').value;
+            const tempo = document.getElementById('tempo-validade').textContent;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'FireGuardian Pro - Visualização',
+                    text: `Acesse os equipamentos de combate a incêndio. Link válido por ${tempo}.`,
+                    url: url
+                }).then(() => {
+                    mostrarAlerta('Compartilhamento realizado!', 'success');
+                }).catch((error) => {
+                    console.log('Erro no compartilhamento:', error);
+                    copiarLink();
+                });
+            } else {
+                copiarLink();
+            }
         }
         
         function verificarModoCompartilhado() {
@@ -1968,14 +2239,50 @@
             
             if (token && urlParams.get('mode') === 'readonly') {
                 try {
-                    const tokenData = JSON.parse(atob(token));
-                    if (tokenData.exp > Date.now()) {
-                        // Token válido
+                    const linkData = JSON.parse(atob(token));
+                    if (linkData.exp > Date.now()) {
+                        // Token válido - carregar dados compartilhados
                         modoLeitura = true;
+                        if (linkData.data) {
+                            data = linkData.data;
+                        }
                         verificarModoLeitura();
+                        
+                        // Mostrar timer na interface de leitura
+                        const timerDiv = document.createElement('div');
+                        timerDiv.className = 'timer-display';
+                        timerDiv.innerHTML = `
+                            <div class="timer-info">
+                                <i class="fas fa-clock timer-icon"></i>
+                                <span class="timer-text">Acesso temporário</span>
+                            </div>
+                            <div class="timer-countdown" id="share-timer">--:--</div>
+                        `;
+                        document.querySelector('.app-header').appendChild(timerDiv);
+                        
+                        // Atualizar timer
+                        function updateShareTimer() {
+                            const restante = linkData.exp - Date.now();
+                            if (restante <= 0) {
+                                document.getElementById('share-timer').textContent = 'EXPIRADO';
+                                alert('Este link expirou!');
+                                window.location.href = window.location.pathname;
+                                return;
+                            }
+                            const minutos = Math.floor(restante / 60000);
+                            const segundos = Math.floor((restante % 60000) / 1000);
+                            document.getElementById('share-timer').textContent = 
+                                `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+                        }
+                        updateShareTimer();
+                        setInterval(updateShareTimer, 1000);
+                    } else {
+                        alert('Este link de compartilhamento expirou!');
+                        window.location.href = window.location.pathname;
                     }
                 } catch (e) {
-                    console.log('Token inválido');
+                    console.error('Token inválido:', e);
+                    alert('Link inválido!');
                 }
             }
         }
@@ -1983,7 +2290,7 @@
         // FUNÇÕES DE EXPORTAÇÃO
         function gerarPDF() {
             if (data.length === 0) {
-                alert('Não há dados para gerar PDF!');
+                mostrarAlerta('Não há dados para gerar PDF!', 'error');
                 return;
             }
             
@@ -2008,16 +2315,16 @@
                 });
 
                 doc.save("FireGuardian_Relatorio.pdf");
-                alert(`PDF gerado com ${data.length} equipamentos!`);
+                mostrarAlerta(`PDF gerado com ${data.length} equipamentos!`, 'success');
             } catch (error) {
                 console.error('Erro ao gerar PDF:', error);
-                alert('Erro ao gerar PDF. Verifique se as bibliotecas estão carregadas.');
+                mostrarAlerta('Erro ao gerar PDF.', 'error');
             }
         }
         
         function exportarExcel() {
             if (data.length === 0) {
-                alert('Não há dados para exportar!');
+                mostrarAlerta('Não há dados para exportar!', 'error');
                 return;
             }
             
@@ -2042,16 +2349,16 @@
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, "Equipamentos");
                 XLSX.writeFile(wb, `equipamentos_fireguardian_${new Date().toISOString().slice(0,10)}.xlsx`);
-                alert(`Excel exportado com ${data.length} equipamentos!`);
+                mostrarAlerta(`Excel exportado com ${data.length} equipamentos!`, 'success');
             } catch (error) {
                 console.error('Erro ao exportar Excel:', error);
-                alert('Erro ao exportar Excel.');
+                mostrarAlerta('Erro ao exportar Excel.', 'error');
             }
         }
         
         function exportarCSV() {
             if (data.length === 0) {
-                alert('Não há dados para exportar!');
+                mostrarAlerta('Não há dados para exportar!', 'error');
                 return;
             }
             
@@ -2063,10 +2370,10 @@
                 
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
                 saveAs(blob, `equipamentos_fireguardian_${new Date().toISOString().slice(0,10)}.csv`);
-                alert(`CSV exportado com ${data.length} equipamentos!`);
+                mostrarAlerta(`CSV exportado com ${data.length} equipamentos!`, 'success');
             } catch (error) {
                 console.error('Erro ao exportar CSV:', error);
-                alert('Erro ao exportar CSV.');
+                mostrarAlerta('Erro ao exportar CSV.', 'error');
             }
         }
         
@@ -2096,6 +2403,37 @@
             return;
         }
         
+        // Sistema de alertas customizados
+        function mostrarAlerta(mensagem, tipo) {
+            // Remover alertas anteriores
+            const alertasAnteriores = document.querySelectorAll('.custom-alert');
+            alertasAnteriores.forEach(a => a.remove());
+            
+            const alert = document.createElement('div');
+            alert.className = `custom-alert ${tipo}`;
+            
+            const icon = tipo === 'success' ? 'check-circle' : 
+                        tipo === 'error' ? 'exclamation-circle' : 'info-circle';
+            const color = tipo === 'success' ? '#2e7d32' : 
+                         tipo === 'error' ? '#d32f2f' : '#1976d2';
+            
+            alert.innerHTML = `
+                <i class="fas fa-${icon}" style="color: ${color}; font-size: 1.2rem;"></i>
+                <span style="font-weight: 500;">${mensagem}</span>
+            `;
+            
+            document.body.appendChild(alert);
+            
+            // Animar entrada
+            setTimeout(() => alert.classList.add('show'), 100);
+            
+            // Remover após 3 segundos
+            setTimeout(() => {
+                alert.classList.remove('show');
+                setTimeout(() => alert.remove(), 300);
+            }, 3000);
+        }
+        
         // Fechar modais ao clicar fora
         document.querySelectorAll('.modal').forEach(modal => {
             modal.addEventListener('click', function(e) {
@@ -2106,4 +2444,4 @@
         });
     </script>
 </body>
-                                </html>
+</html>
