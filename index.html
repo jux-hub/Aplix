@@ -1,372 +1,2797 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FireGuardian Pro</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FireGuardian Pro - Gestão Completa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
     <style>
         :root {
             --primary: #d32f2f;
             --primary-dark: #b71c1c;
-            --bg: #f0f2f5;
+            --primary-light: #ff6659;
+            --secondary: #455a64;
+            --bg: #f5f7fa;
             --card: #ffffff;
-            --text-main: #2c3e50;
-            --text-sub: #546e7a;
+            --text-main: #263238;
+            --text-sub: #607d8b;
             --ok: #2e7d32;
-            --warn: #f9a825;
+            --warn: #ff9800;
             --danger: #c62828;
             --border: #e0e0e0;
+            --radius: 12px;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-hover: 0 8px 20px rgba(0,0,0,0.15);
         }
 
-        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        * { 
+            box-sizing: border-box; 
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; 
+            outline: none; 
+        }
+        
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background: var(--bg); 
+            color: var(--text-main); 
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+        
+        .container { 
+            max-width: 1200px; 
+            margin: auto; 
+            padding: 15px; 
+        }
+        
+        .card { 
+            background: var(--card); 
+            border-radius: var(--radius); 
+            padding: 20px; 
+            box-shadow: var(--shadow); 
+            margin-bottom: 20px;
+            animation: fadeInUp 0.4s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .app-header { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+            color: white; 
+            padding: 25px 20px; 
+            text-align: center; 
+            border-radius: 0 0 25px 25px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 6px 20px rgba(183, 28, 28, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .app-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 15s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        .app-header h1 { 
+            margin: 0; 
+            font-size: 1.8rem; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .app-header p {
+            margin: 8px 0 0 0;
+            opacity: 0.9;
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .readonly-banner { 
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            color: white; 
+            text-align: center; 
+            padding: 12px; 
+            font-weight: bold; 
+            display: none; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
 
-        body { margin: 0; background: var(--bg); color: var(--text-main); line-height: 1.6; }
-
-        header {
+        /* NAVEGAÇÃO MELHORADA */
+        .main-nav { 
+            display: flex; 
+            gap: 8px; 
+            overflow-x: auto; 
+            padding: 10px 0; 
+            margin-bottom: 20px; 
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) var(--border);
+        }
+        
+        .main-nav::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .main-nav::-webkit-scrollbar-track {
+            background: var(--border);
+            border-radius: 10px;
+        }
+        
+        .main-nav::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+        
+        .nav-btn { 
+            flex: 1; 
+            min-width: 90px; 
+            padding: 12px 8px; 
+            border: none; 
+            background: white; 
+            border-radius: 10px; 
+            color: var(--text-sub); 
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 6px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .nav-btn:hover::before {
+            left: 100%;
+        }
+        
+        .nav-btn.active { 
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: #fff;
-            padding: 2rem 1rem;
-            text-align: center;
+            color: white; 
+            transform: translateY(-3px); 
+            box-shadow: 0 6px 15px rgba(211, 47, 47, 0.4);
+        }
+        
+        .nav-btn i { 
+            font-size: 1.3rem; 
+        }
+
+        .tab-content { 
+            display: none; 
+        }
+        
+        .tab-content.active { 
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(15px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        /* DASHBOARD MELHORADO */
+        .dash-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
+            gap: 15px; 
+            margin-bottom: 25px; 
+        }
+        
+        .stat-card { 
+            padding: 20px; 
+            border-radius: 12px; 
+            color: white; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+            transition: all 0.5s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .stat-card:hover::before {
+            top: -25%;
+            right: -25%;
+        }
+        
+        .stat-card strong { 
+            font-size: 2.5rem; 
+            display: block;
+            font-weight: 700;
+            margin-bottom: 5px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stat-card span {
+            font-size: 0.9rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+            font-weight: 500;
+        }
+        
+        .stat-card i {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+        
+        .bg-blue { background: linear-gradient(135deg, #1e88e5, #1565c0); }
+        .bg-green { background: linear-gradient(135deg, #43a047, #2e7d32); }
+        .bg-orange { background: linear-gradient(135deg, #fb8c00, #ef6c00); }
+        .bg-red { background: linear-gradient(135deg, #e53935, #c62828); }
+        .bg-grey { background: linear-gradient(135deg, #78909c, #546e7a); }
+        .bg-purple { background: linear-gradient(135deg, #8e24aa, #6a1b9a); }
+
+        /* PROGRESS BARS */
+        .progress-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .progress-item {
+            margin-bottom: 15px;
+        }
+        
+        .progress-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .progress-bar-bg {
+            height: 12px;
+            background: #e0e0e0;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 20px;
+            transition: width 1s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* CHART CONTAINER */
+        .chart-container {
+            position: relative;
+            height: 250px;
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+        }
+
+        /* FORMULÁRIO APRIMORADO */
+        .form-type-selector { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 20px; 
+            background: linear-gradient(135deg, #f5f5f5, #e8e8e8);
+            padding: 6px; 
+            border-radius: 12px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .type-btn { 
+            flex: 1; 
+            padding: 12px; 
+            border: none; 
+            background: transparent; 
+            border-radius: 10px; 
+            font-weight: 600; 
+            color: var(--text-sub); 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .type-btn.active { 
+            background: white;
+            color: var(--primary); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: scale(1.02);
+        }
+
+        .field-group { 
+            margin-bottom: 18px; 
+        }
+        
+        label { 
+            display: block; 
+            font-weight: 600; 
+            font-size: 0.95rem; 
+            margin-bottom: 8px; 
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        label i {
+            color: var(--primary);
+        }
+        
+        input, select, textarea { 
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 2px solid #e0e0e0; 
+            border-radius: 10px; 
+            font-size: 1rem; 
+            transition: all 0.3s; 
+            background: #fff;
+        }
+        
+        input:focus, select:focus, textarea:focus { 
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        input:disabled, select:disabled, textarea:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+        
+        .btn-save { 
+            width: 100%; 
+            padding: 16px; 
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 1.05rem; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 10px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-save::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn-save:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-save:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(211, 47, 47, 0.4);
+        }
+        
+        .btn-save:active {
+            transform: translateY(0);
+        }
+        
+        .btn-save:disabled { 
+            opacity: 0.6; 
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-save.loading::after {
+            content: "";
+            width: 18px;
+            height: 18px;
+            border: 3px solid #ffffff;
+            border-top: 3px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+
+        /* LISTA DE ITENS APRIMORADA */
+        .item-list { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+        }
+        
+        .item-card { 
+            background: white; 
+            border: 2px solid #f0f0f0;
+            border-radius: 12px; 
+            padding: 16px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .item-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 5px;
+            background: var(--secondary);
+            transition: width 0.3s;
+        }
+        
+        .item-card:hover {
+            transform: translateX(8px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-color: var(--border);
+        }
+        
+        .item-card:hover::before {
+            width: 8px;
+        }
+        
+        .item-card.expired::before { background: linear-gradient(135deg, var(--danger), #d32f2f); }
+        .item-card.warning::before { background: linear-gradient(135deg, var(--warn), #f57c00); }
+        .item-card.ok::before { background: linear-gradient(135deg, var(--ok), #388e3c); }
+        .item-card.nodata::before { background: linear-gradient(135deg, var(--secondary), #546e7a); }
+
+        .item-info h4 { 
+            margin: 0 0 8px 0; 
+            color: var(--text-main);
+            font-size: 1.05rem;
+        }
+        
+        .item-info p { 
+            margin: 0 0 6px 0; 
+            font-size: 0.9rem; 
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .badge { 
+            font-size: 0.75rem; 
+            padding: 4px 10px; 
+            border-radius: 15px; 
+            color: white; 
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+        
+        .actions { 
+            display: flex; 
+            gap: 8px; 
+        }
+        
+        .btn-icon { 
+            width: 38px; 
+            height: 38px; 
+            border-radius: 50%; 
+            border: none; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            font-size: 0.95rem; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .btn-icon:hover {
+            transform: scale(1.15) rotate(5deg);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        .btn-icon:active {
+            transform: scale(0.95);
+        }
+        
+        .btn-edit { 
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            color: #1976d2; 
+        }
+        
+        .btn-edit:hover { 
+            background: linear-gradient(135deg, #1976d2, #1565c0);
+            color: white; 
+        }
+        
+        .btn-del { 
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            color: var(--danger); 
+        }
+        
+        .btn-del:hover { 
+            background: linear-gradient(135deg, var(--danger), #b71c1c);
+            color: white; 
+        }
+
+        /* ÁREA SECTIONS */
+        .area-section { 
+            margin-bottom: 15px; 
+            border: 2px solid #e8e8e8;
+            border-radius: 12px; 
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .area-section:hover {
+            border-color: var(--primary);
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-
-        .container { max-width: 1100px; margin: auto; padding: 20px; }
-
-        /* NAVEGAÇÃO */
-        nav { display: flex; gap: 12px; margin-bottom: 25px; }
-        nav button {
-            flex: 1; padding: 14px; border-radius: 10px; border: none;
-            cursor: pointer; font-weight: 700; background: #fff;
-            color: var(--text-sub); transition: 0.3s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            text-transform: uppercase; font-size: 0.85rem;
-        }
-        nav button.active { background: var(--primary); color: #fff; box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3); }
-
-        .card {
-            background: var(--card); border-radius: 16px; padding: 25px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.05); margin-bottom: 25px;
-            border: 1px solid var(--border);
-        }
-
-        .tab { display: none; animation: fadeIn 0.4s ease; }
-        .tab.active { display: block; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* DASHBOARD */
-        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
-        .stat {
-            padding: 20px; border-radius: 15px; color: #fff; text-align: center;
-            cursor: pointer; transition: transform 0.2s, filter 0.2s;
-        }
-        .stat:hover { transform: scale(1.03); filter: brightness(1.1); }
-        .stat i { font-size: 1.5rem; margin-bottom: 8px; }
-        .stat.total { background: #455a64; }
-        .stat.ok { background: var(--ok); }
-        .stat.warn { background: var(--warn); }
-        .stat.danger { background: var(--danger); }
-        .stat strong { font-size: 1.8rem; display: block; }
-
-        /* FORMULÁRIO DE CADASTRO */
-        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-        .full-width { grid-column: 1 / -1; }
         
-        .field-group { display: flex; flex-direction: column; gap: 6px; }
-        label { font-weight: 600; font-size: 0.9rem; color: var(--text-main); }
+        .area-header { 
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 15px 18px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            font-weight: bold; 
+            cursor: pointer;
+            transition: all 0.3s;
+        }
         
-        input, select, textarea {
-            padding: 12px; border-radius: 8px; border: 2px solid #edf2f7;
-            font-size: 1rem; transition: 0.3s; outline: none;
+        .area-header:hover { 
+            background: linear-gradient(135deg, #e9ecef, #dee2e6);
         }
-        input:focus, select:focus { border-color: var(--primary); background: #fff; }
-
-        fieldset {
-            border: 1px solid var(--border); border-radius: 12px;
-            padding: 20px; margin-bottom: 20px; display: grid;
-            grid-template-columns: repeat(2, 1fr); gap: 15px;
+        
+        .area-header i {
+            transition: transform 0.3s;
         }
-        legend { font-weight: bold; padding: 0 10px; color: var(--primary); }
-
-        /* TABELA */
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #f8f9fa; color: var(--text-sub); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
-        tr:hover { background: #fcfcfc; }
-
-        .status-badge {
-            padding: 5px 10px; border-radius: 20px; font-size: 0.75rem;
-            font-weight: bold; text-transform: uppercase; color: #fff;
+        
+        .area-header.open i {
+            transform: rotate(90deg);
         }
-        .bg-ok { background: var(--ok); }
-        .bg-warn { background: var(--warn); }
-        .bg-danger { background: var(--danger); }
-
-        .btn-del { 
-            background: #ffebee; color: var(--danger); border: none; 
-            padding: 8px; border-radius: 6px; cursor: pointer; transition: 0.2s;
+        
+        .area-content { 
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s;
         }
-        .btn-del:hover { background: var(--danger); color: #fff; }
-
-        .btn-save {
-            background: var(--primary); color: #fff; border: none;
-            padding: 15px 30px; border-radius: 10px; font-weight: bold;
-            cursor: pointer; font-size: 1rem; width: 100%; margin-top: 10px;
+        
+        .area-content.open { 
+            padding: 12px;
+            max-height: 2000px;
         }
-        .btn-save:hover { background: var(--primary-dark); }
 
-        @media (max-width: 600px) { .form-grid, fieldset { grid-template-columns: 1fr; } }
+        /* BUSCA AVANÇADA */
+        .search-box { 
+            position: relative; 
+            margin-bottom: 20px; 
+        }
+        
+        .search-box i { 
+            position: absolute; 
+            left: 15px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            color: var(--text-sub);
+            font-size: 1.1rem;
+        }
+        
+        .search-box input { 
+            padding-left: 45px;
+            font-size: 1.05rem;
+        }
+
+        .search-filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .filter-chip {
+            padding: 8px 12px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .filter-chip:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .filter-chip.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .section-title { 
+            font-size: 1.2rem; 
+            color: var(--primary); 
+            margin: 0 0 20px 0; 
+            padding-bottom: 12px; 
+            border-bottom: 3px solid var(--primary); 
+            display: flex; 
+            align-items: center; 
+            gap: 10px;
+            font-weight: 700;
+        }
+
+        /* MODAL APRIMORADO */
+        .modal-overlay { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            display: none; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 1000;
+            animation: fadeInModal 0.3s;
+        }
+        
+        @keyframes fadeInModal {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 16px; 
+            max-width: 90%; 
+            width: 450px; 
+            max-height: 85vh; 
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideInModal 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes slideInModal {
+            from { 
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .modal-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px; 
+            border-bottom: 3px solid var(--primary); 
+            padding-bottom: 15px; 
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 1.3rem;
+        }
+        
+        .modal-close { 
+            background: #f5f5f5;
+            border: none; 
+            font-size: 1.5rem; 
+            cursor: pointer; 
+            color: var(--text-sub);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .modal-close:hover {
+            background: var(--danger);
+            color: white;
+            transform: rotate(90deg);
+        }
+        
+        /* EMPTY STATE */
+        .empty-state { 
+            text-align: center; 
+            padding: 60px 20px; 
+            color: var(--text-sub); 
+        }
+        
+        .empty-state i { 
+            font-size: 4rem; 
+            margin-bottom: 15px; 
+            color: #ddd; 
+        }
+        
+        .empty-state p {
+            font-size: 1.05rem;
+            margin: 10px 0;
+        }
+        
+        /* TOAST MELHORADO */
+        .toast { 
+            position: fixed; 
+            bottom: 100px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            background: linear-gradient(135deg, #333, #1a1a1a);
+            color: white; 
+            padding: 14px 28px; 
+            border-radius: 30px; 
+            display: none; 
+            z-index: 1001; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            animation: slideUpToast 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+        }
+        
+        @keyframes slideUpToast { 
+            from { 
+                transform: translateX(-50%) translateY(30px); 
+                opacity: 0; 
+            } 
+            to { 
+                transform: translateX(-50%) translateY(0); 
+                opacity: 1; 
+            } 
+        }
+
+        /* LISTA LATERAL DE EQUIPAMENTOS NO CADASTRO */
+        .cadastro-split {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .cadastro-split {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .equipamentos-recentes {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .equipamentos-recentes h4 {
+            margin: 0 0 15px 0;
+            color: var(--text-main);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mini-item-card {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 4px solid var(--primary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+        }
+
+        .mini-item-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .mini-item-card strong {
+            color: var(--primary);
+        }
+
+        /* SUB TABS */
+        .sub-tabs { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 20px; 
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 5px;
+        }
+        
+        .sub-tab { 
+            padding: 10px 20px; 
+            background: none; 
+            border: none; 
+            font-weight: 600; 
+            color: var(--text-sub); 
+            cursor: pointer; 
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .sub-tab::after {
+            content: '';
+            position: absolute;
+            bottom: -7px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+        
+        .sub-tab.active { 
+            background: var(--primary);
+            color: white; 
+        }
+        
+        .sub-tab.active::after {
+            transform: scaleX(1);
+        }
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 768px) {
+            .dash-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .stat-card strong {
+                font-size: 2rem;
+            }
+            
+            .app-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .cadastro-split {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* UTILITIES */
+        .d-none { display: none !important; }
+        .text-center { text-align: center; }
+        .mb-20 { margin-bottom: 20px; }
+        .mt-20 { margin-top: 20px; }
+        
+        /* LOADING SPINNER */
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        /* SHARE BOX */
+        .share-box { 
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            padding: 20px; 
+            border-radius: 12px; 
+            margin-top: 20px; 
+            border: 2px dashed #2196f3;
+        }
+
+        /* SCROLLBAR CUSTOMIZADO */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
     </style>
 </head>
 <body>
 
-<header>
-    <h1><i class="fas fa-fire-extinguisher"></i> FireGuardian</h1>
-    <p>Gestão de Segurança e Conformidade</p>
-</header>
-
-<div class="container">
-    <nav>
-        <button class="active" data-tab="dash"><i class="fas fa-chart-pie"></i> Início</button>
-        <button data-tab="lista" id="btn-lista"><i class="fas fa-list"></i> Equipamentos</button>
-        <button data-tab="cadastro"><i class="fas fa-plus-circle"></i> Novo Cadastro</button>
-    </nav>
-
-    <div id="dash" class="tab active">
-        <div class="card">
-            <h2>Resumo de Segurança</h2>
-            <div class="dashboard">
-                <div class="stat total" onclick="verLista('all')">
-                    <i class="fas fa-boxes"></i>
-                    Total<strong id="total">0</strong>
-                </div>
-                <div class="stat ok" onclick="verLista('ok')">
-                    <i class="fas fa-check-circle"></i>
-                    Em Conformidade<strong id="ok">0</strong>
-                </div>
-                <div class="stat warn" onclick="verLista('warn')">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    Vencendo (30d)<strong id="warn">0</strong>
-                </div>
-                <div class="stat danger" onclick="verLista('danger')">
-                    <i class="fas fa-times-circle"></i>
-                    Fora de Prazo<strong id="danger">0</strong>
-                </div>
-            </div>
-            <p style="text-align: center; color: #777; margin-top: 20px;">Clique nos cards acima para filtrar a lista.</p>
-        </div>
+    <div id="readonly-banner" class="readonly-banner">
+        <i class="fas fa-eye"></i> MODO VISUALIZAÇÃO (Somente Leitura) - Edição Bloqueada
     </div>
 
-    <div id="lista" class="tab">
-        <div class="card">
-            <div style="display:flex; justify-content: space-between; align-items: center;">
-                <h2>Equipamentos Cadastrados</h2>
-                <span id="filtro-ativo" style="font-size: 0.8rem; font-weight: bold; color: var(--primary);"></span>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Status</th>
-                            <th>Descrição</th>
-                            <th>Área / Setor</th>
-                            <th>Localização</th>
-                            <th>Próxima Insp.</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+    <header class="app-header">
+        <h1><i class="fas fa-fire-extinguisher"></i> FireGuardian Pro</h1>
+        <p>Gestão Inteligente de Segurança Contra Incêndio</p>
+    </header>
 
-    <div id="cadastro" class="tab">
-        <div class="card">
-            <h2><i class="fas fa-edit"></i> Cadastro de Equipamento</h2>
-            <form id="form">
-                <div class="field-group full-width" style="margin-bottom: 15px;">
-                    <label>Usar modelo existente (Auto-preencher)</label>
-                    <select id="modelo">
-                        <option value="">-- Selecione para copiar dados --</option>
-                    </select>
+    <div class="container">
+        <!-- ========== NAVEGAÇÃO PRINCIPAL ========== -->
+        <nav class="main-nav" id="main-nav">
+            <button class="nav-btn active" onclick="navegar('dashboard')">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </button>
+            <button class="nav-btn" onclick="navegar('cadastro')">
+                <i class="fas fa-plus-circle"></i>
+                <span>Cadastro</span>
+            </button>
+            <button class="nav-btn" onclick="navegar('busca')">
+                <i class="fas fa-search"></i>
+                <span>Busca</span>
+            </button>
+            <button class="nav-btn" onclick="navegar('lista')">
+                <i class="fas fa-list"></i>
+                <span>Equipamentos</span>
+            </button>
+            <button class="nav-btn" onclick="navegar('organizacao')">
+                <i class="fas fa-layer-group"></i>
+                <span>Por Área</span>
+            </button>
+            <button class="nav-btn" onclick="navegar('relatorios')" id="btn-relatorios">
+                <i class="fas fa-file-export"></i>
+                <span>Relatórios</span>
+            </button>
+        </nav>
+
+        <!-- ========== ABA 1: DASHBOARD (MELHORADO) ========== -->
+        <div id="dashboard" class="tab-content active">
+            
+            <!-- Estatísticas Principais -->
+            <div class="card">
+                <h3 class="section-title">
+                    <i class="fas fa-chart-pie"></i> Visão Geral do Sistema
+                </h3>
+                
+                <div class="dash-grid">
+                    <div class="stat-card bg-blue" onclick="filtrarLista('all')">
+                        <i class="fas fa-boxes"></i>
+                        <strong id="dash-total">0</strong>
+                        <span>Total de Itens</span>
+                    </div>
+                    <div class="stat-card bg-green" onclick="filtrarLista('ok')">
+                        <i class="fas fa-check-circle"></i>
+                        <strong id="dash-ok">0</strong>
+                        <span>Em Conformidade</span>
+                    </div>
+                    <div class="stat-card bg-orange" onclick="filtrarLista('warn')">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong id="dash-warn">0</strong>
+                        <span>Atenção (30d)</span>
+                    </div>
+                    <div class="stat-card bg-red" onclick="filtrarLista('expired')">
+                        <i class="fas fa-times-circle"></i>
+                        <strong id="dash-expired">0</strong>
+                        <span>Vencidos</span>
+                    </div>
                 </div>
 
-                <fieldset>
-                    <legend>Informações do Equipamento</legend>
-                    <div class="field-group">
-                        <label>Tipo *</label>
-                        <select id="tipo" required>
-                            <option value="Extintor">Extintor</option>
-                            <option value="Mangueira">Mangueira</option>
-                            <option value="Hidrante">Hidrante</option>
-                            <option value="Alarme">Alarme/Sensor</option>
+                <div class="dash-grid" style="margin-top: 15px;">
+                    <div class="stat-card bg-grey" onclick="filtrarLista('nodata')">
+                        <i class="fas fa-box-open"></i>
+                        <strong id="dash-inventory">0</strong>
+                        <span>Sem Validade</span>
+                    </div>
+                    <div class="stat-card bg-purple" onclick="navegar('organizacao')">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <strong id="dash-areas">0</strong>
+                        <span>Áreas Cobertas</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráfico de Status -->
+            <div class="card">
+                <h3 class="section-title">
+                    <i class="fas fa-chart-bar"></i> Distribuição de Status
+                </h3>
+                <div class="chart-container">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Barras de Progresso -->
+            <div class="card">
+                <h3 class="section-title">
+                    <i class="fas fa-tasks"></i> Indicadores de Conformidade
+                </h3>
+                <div class="progress-container">
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span><i class="fas fa-check"></i> Taxa de Conformidade</span>
+                            <span id="conformidade-percent">0%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar bg-green" id="conformidade-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span><i class="fas fa-exclamation"></i> Itens Requerendo Atenção</span>
+                            <span id="atencao-percent">0%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar bg-orange" id="atencao-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span><i class="fas fa-times"></i> Taxa de Vencimento</span>
+                            <span id="vencido-percent">0%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar bg-red" id="vencido-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ações Rápidas -->
+            <div class="card">
+                <h3 class="section-title">
+                    <i class="fas fa-bolt"></i> Ações Rápidas
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
+                    <button class="btn-save" style="padding: 12px;" onclick="navegar('cadastro')">
+                        <i class="fas fa-plus"></i> Novo Item
+                    </button>
+                    <button class="btn-save" style="padding: 12px; background: linear-gradient(135deg, #1976d2, #1565c0);" onclick="navegar('busca')">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                    <button class="btn-save" style="padding: 12px; background: linear-gradient(135deg, #43a047, #2e7d32);" onclick="gerarExcel()">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ========== ABA 2: CADASTRO (COM LISTA LATERAL E NOVOS CAMPOS) ========== -->
+        <div id="cadastro" class="tab-content">
+            <div class="card">
+                <h3 class="section-title">
+                    <i class="fas fa-plus-circle"></i> 
+                    <span id="cadastro-titulo">Novo Cadastro</span>
+                </h3>
+                
+                <div class="cadastro-split">
+                    <!-- FORMULÁRIO -->
+                    <div>
+                        <!-- Seletor de Tipo -->
+                        <div class="form-type-selector">
+                            <button type="button" class="type-btn active" id="btn-mode-data" onclick="setCadastroMode(true)">
+                                <i class="fas fa-calendar-alt"></i> Com Validade
+                            </button>
+                            <button type="button" class="type-btn" id="btn-mode-nodata" onclick="setCadastroMode(false)">
+                                <i class="fas fa-box"></i> Sem Validade
+                            </button>
+                        </div>
+
+                        <!-- Modelos Rápidos -->
+                        <div class="field-group" style="background: linear-gradient(135deg, #fff9c4, #fff59d); padding: 12px; border-radius: 10px; border: 2px dashed #fbc02d;">
+                            <label><i class="fas fa-magic"></i> Usar modelo existente</label>
+                            <select id="modelo-select" onchange="aplicarModelo()">
+                                <option value="">-- Selecione para preencher automaticamente --</option>
+                            </select>
+                        </div>
+
+                        <!-- Formulário Principal -->
+                        <form id="form-equipamento" onsubmit="salvarEquipamento(event)">
+                            <input type="hidden" id="edit-id" value="">
+                            
+                            <div class="field-group">
+                                <label><i class="fas fa-fire-extinguisher"></i> Tipo de Equipamento *</label>
+                                <input type="text" id="cad-tipo" list="lista-tipos" required placeholder="Ex: Extintor, Mangueira, Hidrante..." oninput="verificarTipoMangueira()">
+                                <datalist id="lista-tipos">
+                                    <option value="Extintor">
+                                    <option value="Mangueira">
+                                    <option value="Hidrante">
+                                    <option value="Suporte">
+                                    <option value="Sinalização">
+                                    <option value="Detector de Fumaça">
+                                    <option value="Sprinkler">
+                                    <option value="Porta Corta-Fogo">
+                                </datalist>
+                            </div>
+
+                            <div class="field-group">
+                                <label><i class="fas fa-barcode"></i> Código/TAG *</label>
+                                <input type="text" id="cad-codigo" required placeholder="AK - 01" value="AK - ">
+                            </div>
+
+                            <!-- NOVO CAMPO: Chave Storz (aparece apenas para mangueira) -->
+                            <div id="campo-chave-storz" class="field-group" style="display: none;">
+                                <label><i class="fas fa-key"></i> Chave Storz</label>
+                                <select id="cad-chave-storz">
+                                    <option value="">-- Selecione --</option>
+                                    <option value="sim">Sim</option>
+                                    <option value="nao">Não</option>
+                                </select>
+                            </div>
+
+                            <div class="field-group">
+                                <label><i class="fas fa-align-left"></i> Descrição *</label>
+                                <input type="text" id="cad-descricao" required placeholder="Ex: Pó Químico BC 4kg">
+                            </div>
+
+                            <div class="field-group">
+                                <label><i class="fas fa-map-marker-alt"></i> Área *</label>
+                                <input type="text" id="cad-area" list="lista-areas" required placeholder="Ex: Estacionamento 1º Andar">
+                                <datalist id="lista-areas"></datalist>
+                            </div>
+
+                            <div class="field-group">
+                                <label><i class="fas fa-location-arrow"></i> Local Específico *</label>
+                                <input type="text" id="cad-local" required placeholder="Ex: Coluna A-10">
+                            </div>
+
+                            <!-- Campos de Data (mostrados condicionalmente) -->
+                            <div id="datas-fieldset">
+                                <hr style="margin: 25px 0; border: 0; border-top: 2px solid #e0e0e0;">
+                                <h4 style="margin-bottom: 15px; color: var(--primary); display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-calendar-check"></i> Datas de Controle
+                                </h4>
+                                
+                                <div class="field-group">
+                                    <label><i class="fas fa-calendar-day"></i> Última Inspeção</label>
+                                    <input type="date" id="cad-ultima" onchange="validarDatas()">
+                                </div>
+
+                                <div class="field-group">
+                                    <label><i class="fas fa-calendar-times"></i> Próxima Validade/Inspeção *</label>
+                                    <input type="date" id="cad-validade" onchange="validarDatas()">
+                                    <small id="data-erro" style="color: var(--danger); display: none; margin-top: 8px; display: flex; align-items: center; gap: 5px;">
+                                        <i class="fas fa-exclamation-circle"></i> A validade deve ser posterior à última inspeção
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="field-group">
+                                <label><i class="fas fa-sticky-note"></i> Observações</label>
+                                <textarea id="cad-obs" rows="3" placeholder="Informações adicionais..."></textarea>
+                            </div>
+
+                            <button type="submit" class="btn-save" id="btn-salvar">
+                                <i class="fas fa-save"></i> SALVAR EQUIPAMENTO
+                            </button>
+                            
+                            <button type="button" class="btn-save" style="background: linear-gradient(135deg, var(--secondary), #37474f); margin-top: 10px; display: none;" id="btn-cancelar-edicao" onclick="cancelarEdicao()">
+                                <i class="fas fa-times"></i> CANCELAR EDIÇÃO
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- LISTA DE EQUIPAMENTOS RECENTES -->
+                    <div class="equipamentos-recentes">
+                        <h4>
+                            <i class="fas fa-list"></i> 
+                            <span id="recentes-count">Equipamentos Cadastrados (0)</span>
+                        </h4>
+                        <div id="lista-recentes">
+                            <div class="empty-state" style="padding: 30px 10px;">
+                                <i class="fas fa-inbox"></i>
+                                <p style="font-size: 0.9rem;">Nenhum equipamento cadastrado ainda</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== ABA 3: BUSCA AVANÇADA ========== -->
+        <div id="busca" class="tab-content">
+            <div class="card">
+                <h3 class="section-title">
+                    <i class="fas fa-search"></i> Busca Avançada de Equipamentos
+                </h3>
+                
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="busca-input" placeholder="Digite código, tipo, descrição, área ou local..." onkeyup="realizarBuscaAvancada()">
+                </div>
+
+                <!-- Filtros Rápidos -->
+                <div class="search-filters">
+                    <div class="filter-chip active" data-filter="all" onclick="aplicarFiltro(this, 'all')">
+                        <i class="fas fa-th"></i> Todos
+                    </div>
+                    <div class="filter-chip" data-filter="ok" onclick="aplicarFiltro(this, 'ok')">
+                        <i class="fas fa-check"></i> Válidos
+                    </div>
+                    <div class="filter-chip" data-filter="warning" onclick="aplicarFiltro(this, 'warning')">
+                        <i class="fas fa-exclamation"></i> Atenção
+                    </div>
+                    <div class="filter-chip" data-filter="expired" onclick="aplicarFiltro(this, 'expired')">
+                        <i class="fas fa-times"></i> Vencidos
+                    </div>
+                    <div class="filter-chip" data-filter="nodata" onclick="aplicarFiltro(this, 'nodata')">
+                        <i class="fas fa-box"></i> Sem Data
+                    </div>
+                </div>
+
+                <!-- Resultados -->
+                <div id="busca-results">
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <p>Digite acima para buscar equipamentos</p>
+                    </div>
+                </div>
+                
+                <div id="busca-stats" style="margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 8px; text-align: center; display: none;">
+                    <strong id="busca-count">0</strong> resultado(s) encontrado(s)
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== ABA 4: LISTA DE EQUIPAMENTOS ========== -->
+        <div id="lista" class="tab-content">
+            <div class="card">
+                <h3 class="section-title">
+                    <i class="fas fa-list"></i> Lista Completa de Equipamentos
+                </h3>
+                
+                <!-- Sub-abas -->
+                <div class="sub-tabs">
+                    <button class="sub-tab active" onclick="mudarSubAbaLista('com-data')" id="subtab-com-data">
+                        <i class="fas fa-calendar-check"></i> Com Validade
+                    </button>
+                    <button class="sub-tab" onclick="mudarSubAbaLista('sem-data')" id="subtab-sem-data">
+                        <i class="fas fa-box"></i> Sem Validade
+                    </button>
+                </div>
+
+                <!-- Lista Com Data -->
+                <div id="lista-com-data" class="lista-container">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <span id="contador-com-data" style="color: var(--text-sub); font-size: 0.95rem; font-weight: 600;"></span>
+                        <span style="font-size: 0.85rem; color: var(--text-sub);">
+                            <i class="fas fa-info-circle"></i> Clique nos cards para ver detalhes
+                        </span>
+                    </div>
+                    <div id="container-itens-data" class="item-list"></div>
+                </div>
+
+                <!-- Lista Sem Data -->
+                <div id="lista-sem-data" class="lista-container d-none">
+                    <div style="margin-bottom: 15px;">
+                        <span style="color: var(--text-sub); font-size: 0.95rem; font-weight: 600;">
+                            <i class="fas fa-box-open"></i> Itens de inventário sem controle de validade
+                        </span>
+                    </div>
+                    <div id="container-itens-sem-data" class="item-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== ABA 5: ORGANIZAÇÃO POR ÁREA ========== -->
+        <div id="organizacao" class="tab-content">
+            <div class="card">
+                <h3 class="section-title">
+                    <i class="fas fa-layer-group"></i> Organização por Áreas
+                </h3>
+                
+                <p style="color: var(--text-sub); font-size: 0.95rem; margin-bottom: 20px; background: linear-gradient(135deg, #e3f2fd, #bbdefb); padding: 15px; border-radius: 10px; border-left: 4px solid #2196f3;">
+                    <i class="fas fa-info-circle"></i> Os equipamentos são agrupados automaticamente pelo campo "Área". Clique no cabeçalho para expandir/recolher cada seção.
+                </p>
+                
+                <div id="areas-container"></div>
+            </div>
+        </div>
+
+        <!-- ========== ABA 6: RELATÓRIOS ========== -->
+        <div id="relatorios" class="tab-content">
+            <div class="card">
+                <h3 class="section-title">
+                    <i class="fas fa-file-export"></i> Exportação e Compartilhamento
+                </h3>
+                
+                <h4 style="margin: 0 0 15px 0; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-download"></i> Exportar Dados
+                </h4>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 30px;">
+                    <button class="btn-save" style="background: linear-gradient(135deg, #e53935, #c62828);" onclick="gerarPDF()">
+                        <i class="fas fa-file-pdf"></i> Exportar PDF
+                    </button>
+                    <button class="btn-save" style="background: linear-gradient(135deg, #2e7d32, #1b5e20);" onclick="gerarExcel()">
+                        <i class="fas fa-file-excel"></i> Exportar Excel
+                    </button>
+                </div>
+
+                <hr style="margin: 30px 0; border: 0; border-top: 2px solid #e0e0e0;">
+
+                <!-- Compartilhamento -->
+                <h4 style="margin: 0 0 10px 0; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-share-alt"></i> Compartilhar Acesso
+                </h4>
+                
+                <p style="font-size: 0.95rem; color: var(--text-sub); margin-bottom: 20px; line-height: 1.6;">
+                    Gere um link temporário para visualização <strong>somente leitura</strong>. 
+                    <br><strong>Nota:</strong> Usuários com este link não terão acesso às funções administrativas.
+                </p>
+
+                <div class="share-box">
+                    <div class="field-group" style="margin-bottom: 15px;">
+                        <label style="color: var(--text-main);"><i class="fas fa-clock"></i> Tempo de validade do link</label>
+                        <select id="share-time" style="margin-top: 5px;">
+                            <option value="15">15 Minutos</option>
+                            <option value="60" selected>1 Hora</option>
+                            <option value="1440">24 Horas</option>
+                            <option value="10080">7 Dias</option>
                         </select>
                     </div>
-                    <div class="field-group">
-                        <label>Descrição / Modelo (ex: Pó Químico ABC 4KG) *</label>
-                        <input id="descricao" placeholder="Ex: Pó Químico ABC 4KG" required>
-                    </div>
-                    <div class="field-group">
-                        <label>Área / Pavimento *</label>
-                        <input id="area" placeholder="Ex: Térreo" required>
-                    </div>
-                    <div class="field-group">
-                        <label>Local Específico (Setor) *</label>
-                        <input id="local" placeholder="Ex: SETOR ACGUA" required>
-                    </div>
-                </fieldset>
+                    
+                    <button class="btn-save" style="background: linear-gradient(135deg, #1976d2, #1565c0);" onclick="gerarLink()">
+                        <i class="fas fa-link"></i> GERAR LINK DE ACESSO
+                    </button>
 
-                <fieldset>
-                    <legend>Cronograma de Manutenção</legend>
-                    <div class="field-group">
-                        <label>Última Inspeção *</label>
-                        <input type="date" id="ultima" required>
+                    <div id="link-result" style="margin-top: 20px; display: none; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <label style="font-size: 0.9rem; margin-bottom: 8px; color: var(--text-main); font-weight: 600;">
+                            <i class="fas fa-check-circle" style="color: var(--ok);"></i> Link gerado com sucesso:
+                        </label>
+                        <input type="text" id="share-url" readonly style="font-size: 0.9rem; background: #f5f5f5; margin-bottom: 10px;">
+                        <button onclick="copiarLink()" style="padding: 10px 20px; background: linear-gradient(135deg, var(--ok), #1b5e20); color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: 600; transition: all 0.3s;">
+                            <i class="fas fa-copy"></i> COPIAR LINK
+                        </button>
                     </div>
-                    <div class="field-group">
-                        <label>Próxima Inspeção/Vencimento *</label>
-                        <input type="date" id="proxima" required>
-                    </div>
-                </fieldset>
-
-                <div class="field-group full-width">
-                    <label>Observações Técnicas</label>
-                    <textarea id="obs" rows="3" placeholder="Anote detalhes sobre o estado do casco, lacre, mangueira, etc."></textarea>
                 </div>
+            </div>
+        </div>
 
-                <button type="submit" class="btn-save">SALVAR EQUIPAMENTO</button>
-            </form>
+    </div>
+
+    <!-- ========== MODAL DE DETALHES ========== -->
+    <div id="modal-detalhes" class="modal-overlay" onclick="fecharModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3><i class="fas fa-info-circle"></i> Detalhes do Equipamento</h3>
+                <button class="modal-close" onclick="fecharModal()">&times;</button>
+            </div>
+            <div id="modal-body"></div>
         </div>
     </div>
-</div>
+
+    <!-- ========== TOAST NOTIFICATION ========== -->
+    <div id="toast" class="toast"></div>
 
 <script>
-    // Gerenciamento de Abas
-    const tabs = document.querySelectorAll('.tab');
-    const buttons = document.querySelectorAll('nav button');
-    
-    function openTab(tabId) {
-        buttons.forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
-        tabs.forEach(t => t.classList.toggle('active', t.id === tabId));
-    }
+    // ==========================================
+    // ESTADO DA APLICAÇÃO
+    // ==========================================
+    let db = JSON.parse(localStorage.getItem('fire_db')) || [];
+    let isComDataMode = true;
+    let isReadOnly = false;
+    let subAbaAtiva = 'com-data';
+    let formModificado = false;
+    let filtroAtivoBusca = 'all';
+    let statusChart = null;
 
-    buttons.forEach(b => b.onclick = () => openTab(b.dataset.tab));
-
-    // Lógica de Dados
-    let data = JSON.parse(localStorage.getItem('fire_equip') || '[]');
-    let modelos = JSON.parse(localStorage.getItem('fire_models') || '[]');
-    let filtroAtual = 'all';
-
-    function getStatus(item) {
-        const hoje = new Date();
-        const venc = new Date(item.proxima);
-        const diffDias = (venc - hoje) / (1000 * 60 * 60 * 24);
+    // ==========================================
+    // INICIALIZAÇÃO
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', () => {
+        verificarAcessoCompartilhado();
+        atualizarUI();
+        inicializarDatasDefault();
+        inicializarGrafico();
+        configurarCampoCodigo(); // Configura o campo código com prefixo AK
+        verificarTipoMangueira(); // Verifica se o tipo inicial já é mangueira
         
-        if (diffDias < 0) return { label: 'Vencido', class: 'bg-danger', code: 'danger' };
-        if (diffDias <= 30) return { label: 'Atenção', class: 'bg-warn', code: 'warn' };
-        return { label: 'Em Conformidade', class: 'bg-ok', code: 'ok' };
+        // Detectar modificações no formulário
+        document.getElementById('form-equipamento').addEventListener('input', () => {
+            formModificado = true;
+        });
+    });
+
+    // Alertar sobre dados não salvos
+    window.addEventListener('beforeunload', (e) => {
+        if (formModificado && !isReadOnly) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+
+    function inicializarDatasDefault() {
+        const hoje = new Date().toISOString().split('T')[0];
+        document.getElementById('cad-ultima').value = hoje;
+        
+        const anoQueVem = new Date();
+        anoQueVem.setFullYear(anoQueVem.getFullYear() + 1);
+        document.getElementById('cad-validade').value = anoQueVem.toISOString().split('T')[0];
     }
 
-    function render() {
-        const tbody = document.getElementById('tbody');
-        tbody.innerHTML = '';
-        let c = { total: 0, ok: 0, warn: 0, danger: 0 };
+    // Configura o campo código para sempre iniciar com "AK - " e não permitir remover o prefixo
+    function configurarCampoCodigo() {
+        const campo = document.getElementById('cad-codigo');
+        const prefixo = 'AK - ';
+        
+        // Garante que o valor inicial tenha o prefixo
+        if (!campo.value.startsWith(prefixo)) {
+            campo.value = prefixo;
+        }
+        
+        campo.addEventListener('input', function(e) {
+            let valor = this.value;
+            // Se o valor não começar com o prefixo, adiciona
+            if (!valor.startsWith(prefixo)) {
+                this.value = prefixo + valor.replace(prefixo, '');
+            }
+            // Se o usuário tentar apagar além do prefixo, restaura
+            if (valor.length < prefixo.length) {
+                this.value = prefixo;
+            }
+        });
+        
+        campo.addEventListener('keydown', function(e) {
+            // Impede que o usuário apague o prefixo com backspace ou delete
+            const pos = this.selectionStart;
+            const prefixo = 'AK - ';
+            if (pos < prefixo.length && (e.key === 'Backspace' || e.key === 'Delete')) {
+                e.preventDefault();
+                // Move o cursor para depois do prefixo
+                this.setSelectionRange(prefixo.length, prefixo.length);
+            }
+        });
+        
+        campo.addEventListener('click', function() {
+            // Ao clicar, posiciona o cursor depois do prefixo
+            const prefixo = 'AK - ';
+            if (this.selectionStart < prefixo.length) {
+                this.setSelectionRange(prefixo.length, prefixo.length);
+            }
+        });
+    }
 
-        data.forEach((item, idx) => {
-            const s = getStatus(item);
-            c.total++;
-            c[s.code]++;
+    // Mostra/esconde o campo "Chave Storz" baseado no tipo de equipamento
+    function verificarTipoMangueira() {
+        const tipo = document.getElementById('cad-tipo').value.toLowerCase();
+        const campoChave = document.getElementById('campo-chave-storz');
+        
+        if (tipo === 'mangueira') {
+            campoChave.style.display = 'block';
+        } else {
+            campoChave.style.display = 'none';
+            // Opcional: limpa o valor ao esconder
+            document.getElementById('cad-chave-storz').value = '';
+        }
+    }
 
-            if (filtroAtual === 'all' || filtroAtual === s.code) {
-                tbody.innerHTML += `
-                    <tr>
-                        <td><span class="status-badge ${s.class}">${s.label}</span></td>
-                        <td><strong>${item.descricao}</strong><br><small style="color:#888">${item.tipo}</small></td>
-                        <td>${item.area}</td>
-                        <td>${item.local}</td>
-                        <td>${item.proxima.split('-').reverse().join('/')}</td>
-                        <td>
-                            <button class="btn-del" onclick="del(${idx})" title="Excluir">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>`;
+    // ==========================================
+    // NAVEGAÇÃO
+    // ==========================================
+    function navegar(tabId) {
+        const targetTab = document.getElementById(tabId);
+        if (!targetTab) {
+            showToast('⚠️ Aba não disponível no modo de visualização');
+            return;
+        }
+
+        // Remover active de todas as abas
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+        
+        // Ativar aba selecionada
+        targetTab.classList.add('active');
+        
+        // Ativar botão correspondente
+        const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => 
+            b.getAttribute('onclick')?.includes(tabId)
+        );
+        if(btn) btn.classList.add('active');
+
+        // Ações específicas por aba
+        if(tabId === 'organizacao') renderizarOrganizacao();
+        if(tabId === 'cadastro') atualizarListaRecentes();
+        if(tabId === 'dashboard') atualizarGrafico();
+        
+        // Resetar título se não estiver editando
+        if(tabId === 'cadastro' && !document.getElementById('edit-id').value) {
+            document.getElementById('cadastro-titulo').textContent = 'Novo Cadastro';
+        }
+    }
+
+    function mudarSubAbaLista(tipo) {
+        subAbaAtiva = tipo;
+        document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+        document.getElementById(`subtab-${tipo}`).classList.add('active');
+        
+        if (tipo === 'com-data') {
+            document.getElementById('lista-com-data').classList.remove('d-none');
+            document.getElementById('lista-sem-data').classList.add('d-none');
+        } else {
+            document.getElementById('lista-com-data').classList.add('d-none');
+            document.getElementById('lista-sem-data').classList.remove('d-none');
+        }
+    }
+
+    function setCadastroMode(comData) {
+        isComDataMode = comData;
+        const fieldset = document.getElementById('datas-fieldset');
+        
+        document.getElementById('btn-mode-data').className = comData ? 'type-btn active' : 'type-btn';
+        document.getElementById('btn-mode-nodata').className = !comData ? 'type-btn active' : 'type-btn';
+
+        if (comData) {
+            fieldset.style.display = 'block';
+            document.getElementById('cad-validade').required = true;
+        } else {
+            fieldset.style.display = 'none';
+            document.getElementById('cad-validade').required = false;
+        }
+    }
+
+    function validarDatas() {
+        const ultima = document.getElementById('cad-ultima').value;
+        const validade = document.getElementById('cad-validade').value;
+        const erro = document.getElementById('data-erro');
+        const btnSalvar = document.getElementById('btn-salvar');
+
+        if (ultima && validade && new Date(validade) <= new Date(ultima)) {
+            erro.style.display = 'flex';
+            btnSalvar.disabled = true;
+            return false;
+        } else {
+            erro.style.display = 'none';
+            btnSalvar.disabled = false;
+            return true;
+        }
+    }
+
+    // ==========================================
+    // CRUD - CREATE, READ, UPDATE, DELETE
+    // ==========================================
+    function salvarEquipamento(e) {
+        e.preventDefault();
+        if (isReadOnly) {
+            showToast('❌ Modo somente leitura');
+            return;
+        }
+        
+        if (isComDataMode && !validarDatas()) {
+            showToast('⚠️ Corrija as datas antes de salvar');
+            return;
+        }
+
+        const btnSalvar = document.getElementById('btn-salvar');
+        const editId = document.getElementById('edit-id').value;
+        
+        // Loading state
+        btnSalvar.disabled = true;
+        btnSalvar.classList.add('loading');
+        btnSalvar.innerHTML = '<i class="fas fa-spinner"></i> SALVANDO...';
+
+        setTimeout(() => {
+            const itemData = {
+                tipo: document.getElementById('cad-tipo').value,
+                codigo: document.getElementById('cad-codigo').value,
+                descricao: document.getElementById('cad-descricao').value,
+                area: document.getElementById('cad-area').value,
+                local: document.getElementById('cad-local').value,
+                obs: document.getElementById('cad-obs').value,
+                ultima: isComDataMode ? document.getElementById('cad-ultima').value : null,
+                validade: isComDataMode ? document.getElementById('cad-validade').value : null,
+                chaveStorz: document.getElementById('cad-chave-storz').value || null // Novo campo
+            };
+
+            if (editId) {
+                // Edição
+                const index = db.findIndex(item => item.id == editId);
+                if (index !== -1) {
+                    db[index] = { ...db[index], ...itemData };
+                    showToast('✅ Equipamento atualizado com sucesso!');
+                }
+            } else {
+                // Novo cadastro
+                const novoItem = {
+                    id: Date.now(),
+                    ...itemData
+                };
+                db.push(novoItem);
+                showToast('✅ Equipamento cadastrado com sucesso!');
+            }
+
+            localStorage.setItem('fire_db', JSON.stringify(db));
+            
+            // Resetar formulário
+            e.target.reset();
+            document.getElementById('edit-id').value = '';
+            document.getElementById('cadastro-titulo').textContent = 'Novo Cadastro';
+            document.getElementById('btn-cancelar-edicao').style.display = 'none';
+            formModificado = false;
+            
+            // Restaurar datas padrão
+            inicializarDatasDefault();
+            // Restaurar campo código com prefixo
+            document.getElementById('cad-codigo').value = 'AK - ';
+            
+            // Restaurar botão
+            btnSalvar.disabled = false;
+            btnSalvar.classList.remove('loading');
+            btnSalvar.innerHTML = '<i class="fas fa-save"></i> SALVAR EQUIPAMENTO';
+            
+            atualizarUI();
+            atualizarListaRecentes();
+            verificarTipoMangueira(); // Reaplica a lógica de exibição do campo chave
+        }, 800);
+    }
+
+    function editarItem(id) {
+        if (isReadOnly) return;
+        const item = db.find(i => i.id === id);
+        if (!item) return;
+
+        document.getElementById('edit-id').value = item.id;
+        document.getElementById('cad-tipo').value = item.tipo;
+        document.getElementById('cad-codigo').value = item.codigo;
+        document.getElementById('cad-descricao').value = item.descricao;
+        document.getElementById('cad-area').value = item.area;
+        document.getElementById('cad-local').value = item.local;
+        document.getElementById('cad-obs').value = item.obs || '';
+        
+        setCadastroMode(!!item.validade);
+        
+        if (item.validade) {
+            document.getElementById('cad-ultima').value = item.ultima || '';
+            document.getElementById('cad-validade').value = item.validade;
+        }
+
+        // Carregar chaveStorz se existir
+        if (item.chaveStorz) {
+            document.getElementById('cad-chave-storz').value = item.chaveStorz;
+        } else {
+            document.getElementById('cad-chave-storz').value = '';
+        }
+
+        document.getElementById('cadastro-titulo').textContent = '✏️ Editar Cadastro';
+        document.getElementById('btn-cancelar-edicao').style.display = 'block';
+        formModificado = true;
+        
+        verificarTipoMangueira(); // Atualiza visibilidade do campo chave
+        
+        navegar('cadastro');
+        showToast('✏️ Modo edição ativado');
+        
+        // Scroll suave para o topo
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cancelarEdicao() {
+        document.getElementById('form-equipamento').reset();
+        document.getElementById('edit-id').value = '';
+        document.getElementById('cadastro-titulo').textContent = 'Novo Cadastro';
+        document.getElementById('btn-cancelar-edicao').style.display = 'none';
+        formModificado = false;
+        
+        inicializarDatasDefault();
+        setCadastroMode(true);
+        document.getElementById('cad-codigo').value = 'AK - ';
+        verificarTipoMangueira(); // Esconde campo chave se necessário
+        
+        showToast('❌ Edição cancelada');
+    }
+
+    function excluirItem(id) {
+        if (isReadOnly) return;
+        
+        const item = db.find(i => i.id === id);
+        if (!item) return;
+        
+        if (confirm(`⚠️ Deseja realmente excluir o item:\n\n${item.codigo} - ${item.tipo}\n${item.descricao}\n\nEsta ação não pode ser desfeita!`)) {
+            db = db.filter(item => item.id !== id);
+            localStorage.setItem('fire_db', JSON.stringify(db));
+            atualizarUI();
+            atualizarListaRecentes();
+            fecharModal();
+            showToast('🗑️ Item excluído com sucesso');
+        }
+    }
+
+    // ==========================================
+    // FUNÇÕES DE STATUS E CÁLCULOS
+    // ==========================================
+    function getStatus(validade) {
+        if (!validade) return { 
+            class: 'nodata', 
+            text: 'Sem validade', 
+            days: null, 
+            priority: 3,
+            icon: 'fa-box'
+        };
+        
+        const hoje = new Date();
+        hoje.setHours(0,0,0,0);
+        const venc = new Date(validade);
+        venc.setHours(0,0,0,0);
+        const diffTime = venc - hoje;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+
+        if (diffDays < 0) return { 
+            class: 'expired', 
+            text: 'VENCIDO', 
+            days: diffDays, 
+            priority: 0,
+            icon: 'fa-times-circle'
+        };
+        
+        if (diffDays <= 30) return { 
+            class: 'warning', 
+            text: 'ATENÇÃO', 
+            days: diffDays, 
+            priority: 1,
+            icon: 'fa-exclamation-triangle'
+        };
+        
+        return { 
+            class: 'ok', 
+            text: 'VÁLIDO', 
+            days: diffDays, 
+            priority: 2,
+            icon: 'fa-check-circle'
+        };
+    }
+
+    // ==========================================
+    // ATUALIZAÇÃO DA UI
+    // ==========================================
+    function atualizarUI() {
+        atualizarListas();
+        atualizarDashboard();
+        atualizarModelos();
+        atualizarDatalistAreas();
+    }
+
+    function atualizarListas() {
+        const listData = document.getElementById('container-itens-data');
+        const listNoData = document.getElementById('container-itens-sem-data');
+        
+        listData.innerHTML = '';
+        listNoData.innerHTML = '';
+
+        let itensComData = [];
+        let itensSemData = [];
+
+        db.forEach(item => {
+            if (item.validade) {
+                const st = getStatus(item.validade);
+                itensComData.push({ item, status: st });
+            } else {
+                itensSemData.push(item);
             }
         });
 
-        // Atualiza Dashboard
-        document.getElementById('total').innerText = c.total;
-        document.getElementById('ok').innerText = c.ok;
-        document.getElementById('warn').innerText = c.warn;
-        document.getElementById('danger').innerText = c.danger;
+        // Ordenar itens com data por prioridade (vencidos primeiro)
+        itensComData.sort((a, b) => a.status.priority - b.status.priority);
 
-        // Atualiza Modelos no Select
-        const selectModelo = document.getElementById('modelo');
-        selectModelo.innerHTML = '<option value="">-- Selecione para copiar dados --</option>';
-        modelos.forEach((m, i) => {
-            selectModelo.innerHTML += `<option value="${i}">${m.descricao} (${m.local})</option>`;
+        // Renderizar itens com data
+        if (itensComData.length === 0) {
+            listData.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-calendar-check"></i>
+                    <p>Nenhum equipamento com controle de validade cadastrado</p>
+                </div>`;
+        } else {
+            itensComData.forEach(({ item, status }) => {
+                listData.innerHTML += criarCardItem(item, status);
+            });
+        }
+
+        // Renderizar itens sem data
+        if (itensSemData.length === 0) {
+            listNoData.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-box"></i>
+                    <p>Nenhum item de inventário sem validade cadastrado</p>
+                </div>`;
+        } else {
+            itensSemData.forEach(item => {
+                const st = getStatus(null);
+                listNoData.innerHTML += criarCardItem(item, st);
+            });
+        }
+
+        // Atualizar contador
+        document.getElementById('contador-com-data').innerText = 
+            `📊 ${itensComData.length} item(ns) com controle de validade`;
+    }
+
+    function criarCardItem(item, status) {
+        const btnEdit = isReadOnly ? '' : 
+            `<button class="btn-icon btn-edit" onclick="event.stopPropagation(); editarItem(${item.id})" title="Editar">
+                <i class="fas fa-edit"></i>
+            </button>`;
+        const btnDelete = isReadOnly ? '' : 
+            `<button class="btn-icon btn-del" onclick="event.stopPropagation(); excluirItem(${item.id})" title="Excluir">
+                <i class="fas fa-trash"></i>
+            </button>`;
+
+        const badgeColor = {
+            'expired': '#c62828',
+            'warning': '#ff9800',
+            'ok': '#2e7d32',
+            'nodata': '#78909c'
+        }[status.class];
+
+        const validadeInfo = item.validade ? 
+            `<span class="badge" style="background: ${badgeColor}">
+                <i class="fas ${status.icon}"></i>
+                ${status.text} ${status.days !== null ? `(${status.days} dias)` : ''} | 
+                ${item.validade.split('-').reverse().join('/')}
+            </span>` : 
+            `<span class="badge" style="background: ${badgeColor}">
+                <i class="fas fa-box"></i> Item sem validade
+            </span>`;
+
+        // Se for mangueira e tiver chaveStorz, exibe um ícone extra
+        const chaveIcon = (item.tipo && item.tipo.toLowerCase() === 'mangueira' && item.chaveStorz) 
+            ? `<span style="margin-left: 5px;"><i class="fas fa-key" style="color: #f57c00;" title="Chave Storz: ${item.chaveStorz === 'sim' ? 'Sim' : 'Não'}"></i></span>` 
+            : '';
+
+        return `
+        <div class="item-card ${status.class}" onclick="abrirDetalhes(${item.id})">
+            <div class="item-info">
+                <h4><i class="fas fa-fire-extinguisher"></i> ${item.codigo} - ${item.tipo} ${chaveIcon}</h4>
+                <p><i class="fas fa-align-left"></i> ${item.descricao}</p>
+                <p><i class="fas fa-map-marker-alt"></i> ${item.area} › ${item.local}</p>
+                ${validadeInfo}
+            </div>
+            <div class="actions">
+                ${btnEdit}
+                ${btnDelete}
+            </div>
+        </div>`;
+    }
+
+    function atualizarDashboard() {
+        let counts = { ok: 0, warn: 0, expired: 0, nodata: 0, total: 0 };
+        const areasSet = new Set();
+        
+        db.forEach(item => {
+            counts.total++;
+            areasSet.add(item.area);
+            
+            if (item.validade) {
+                const st = getStatus(item.validade);
+                if(st.class === 'ok') counts.ok++;
+                if(st.class === 'warning') counts.warn++;
+                if(st.class === 'expired') counts.expired++;
+            } else {
+                counts.nodata++;
+            }
+        });
+
+        // Atualizar contadores
+        document.getElementById('dash-total').innerText = counts.total;
+        document.getElementById('dash-ok').innerText = counts.ok;
+        document.getElementById('dash-warn').innerText = counts.warn;
+        document.getElementById('dash-expired').innerText = counts.expired;
+        document.getElementById('dash-inventory').innerText = counts.nodata;
+        document.getElementById('dash-areas').innerText = areasSet.size;
+
+        // Atualizar barras de progresso
+        const totalComData = counts.ok + counts.warn + counts.expired;
+        if (totalComData > 0) {
+            const conformidadePercent = Math.round((counts.ok / totalComData) * 100);
+            const atencaoPercent = Math.round((counts.warn / totalComData) * 100);
+            const vencidoPercent = Math.round((counts.expired / totalComData) * 100);
+
+            document.getElementById('conformidade-percent').textContent = conformidadePercent + '%';
+            document.getElementById('conformidade-bar').style.width = conformidadePercent + '%';
+            
+            document.getElementById('atencao-percent').textContent = atencaoPercent + '%';
+            document.getElementById('atencao-bar').style.width = atencaoPercent + '%';
+            
+            document.getElementById('vencido-percent').textContent = vencidoPercent + '%';
+            document.getElementById('vencido-bar').style.width = vencidoPercent + '%';
+        }
+
+        // Atualizar gráfico
+        atualizarGrafico();
+    }
+
+    function atualizarModelos() {
+        const selectModelo = document.getElementById('modelo-select');
+        selectModelo.innerHTML = '<option value="">-- Usar modelo existente --</option>';
+        
+        const modelosUnicos = new Set();
+        
+        db.forEach(item => {
+            const modeloKey = `${item.tipo} - ${item.descricao}`;
+            if (!modelosUnicos.has(modeloKey)) {
+                modelosUnicos.add(modeloKey);
+                const opt = document.createElement('option');
+                opt.value = JSON.stringify(item);
+                opt.textContent = modeloKey;
+                selectModelo.appendChild(opt);
+            }
         });
     }
 
-    function verLista(status) {
-        filtroAtual = status;
-        const labels = { all: '', ok: '(Filtrado: Em Conformidade)', warn: '(Filtrado: Atenção)', danger: '(Filtrado: Vencidos)' };
-        document.getElementById('filtro-ativo').innerText = labels[status];
-        render();
-        openTab('lista');
-    }
-
-    function del(i) {
-        if (confirm('Deseja realmente remover este equipamento do sistema?')) {
-            data.splice(i, 1);
-            save();
-        }
-    }
-
-    function save() {
-        localStorage.setItem('fire_equip', JSON.stringify(data));
-        localStorage.setItem('fire_models', JSON.stringify(modelos));
-        render();
-    }
-
-    document.getElementById('modelo').onchange = (e) => {
-        const m = modelos[e.target.value];
-        if (!m) return;
-        document.getElementById('tipo').value = m.tipo;
-        document.getElementById('descricao').value = m.descricao;
-        document.getElementById('area').value = m.area;
-        document.getElementById('local').value = m.local;
-    };
-
-    document.getElementById('form').onsubmit = (e) => {
-        e.preventDefault();
-        const novo = {
-            tipo: document.getElementById('tipo').value,
-            descricao: document.getElementById('descricao').value,
-            area: document.getElementById('area').value,
-            local: document.getElementById('local').value,
-            ultima: document.getElementById('ultima').value,
-            proxima: document.getElementById('proxima').value,
-            obs: document.getElementById('obs').value
-        };
-
-        data.push(novo);
+    function atualizarDatalistAreas() {
+        const datalist = document.getElementById('lista-areas');
+        datalist.innerHTML = '';
         
-        // Adiciona aos modelos se for uma descrição nova
-        if (!modelos.find(m => m.descricao === novo.descricao)) {
-            modelos.push(novo);
+        const areasUnicas = [...new Set(db.map(item => item.area))];
+        areasUnicas.sort().forEach(area => {
+            const opt = document.createElement('option');
+            opt.value = area;
+            datalist.appendChild(opt);
+        });
+    }
+
+    function atualizarListaRecentes() {
+        const container = document.getElementById('lista-recentes');
+        const count = document.getElementById('recentes-count');
+        
+        if (db.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="padding: 30px 10px;">
+                    <i class="fas fa-inbox"></i>
+                    <p style="font-size: 0.9rem;">Nenhum equipamento cadastrado ainda</p>
+                </div>`;
+            count.textContent = 'Equipamentos Cadastrados (0)';
+            return;
         }
 
-        save();
-        e.target.reset();
-        alert('Equipamento registrado com sucesso!');
-        verLista('all');
-    };
+        // Mostrar últimos 10 itens
+        const recentes = [...db].reverse().slice(0, 10);
+        
+        container.innerHTML = recentes.map(item => {
+            const st = getStatus(item.validade);
+            const statusColor = {
+                'expired': '#c62828',
+                'warning': '#ff9800',
+                'ok': '#2e7d32',
+                'nodata': '#78909c'
+            }[st.class];
 
-    render();
+            return `
+            <div class="mini-item-card" onclick="abrirDetalhes(${item.id})" style="border-left-color: ${statusColor}">
+                <div>
+                    <strong>${item.codigo}</strong> - ${item.tipo}
+                    <br>
+                    <small style="color: var(--text-sub);">
+                        <i class="fas fa-map-marker-alt"></i> ${item.area}
+                    </small>
+                </div>
+            </div>`;
+        }).join('');
+
+        count.textContent = `Equipamentos Cadastrados (${db.length})`;
+    }
+
+    function aplicarModelo() {
+        const select = document.getElementById('modelo-select');
+        if (!select.value) return;
+        
+        const item = JSON.parse(select.value);
+        
+        document.getElementById('cad-tipo').value = item.tipo;
+        document.getElementById('cad-descricao').value = item.descricao;
+        document.getElementById('cad-area').value = item.area;
+        document.getElementById('cad-chave-storz').value = item.chaveStorz || '';
+        
+        setCadastroMode(!!item.validade);
+        verificarTipoMangueira(); // Atualiza visibilidade do campo chave
+        formModificado = true;
+        
+        showToast('📋 Modelo aplicado com sucesso!');
+    }
+
+    // ==========================================
+    // GRÁFICO
+    // ==========================================
+    function inicializarGrafico() {
+        const ctx = document.getElementById('statusChart');
+        if (!ctx) return;
+
+        statusChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Em Conformidade', 'Atenção (30d)', 'Vencidos', 'Sem Validade'],
+                datasets: [{
+                    data: [0, 0, 0, 0],
+                    backgroundColor: [
+                        '#43a047',
+                        '#fb8c00',
+                        '#e53935',
+                        '#78909c'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percent = total > 0 ? Math.round((value / total) * 100) : 0;
+                                return `${label}: ${value} (${percent}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function atualizarGrafico() {
+        if (!statusChart) return;
+
+        let counts = { ok: 0, warn: 0, expired: 0, nodata: 0 };
+        
+        db.forEach(item => {
+            if (item.validade) {
+                const st = getStatus(item.validade);
+                if(st.class === 'ok') counts.ok++;
+                if(st.class === 'warning') counts.warn++;
+                if(st.class === 'expired') counts.expired++;
+            } else {
+                counts.nodata++;
+            }
+        });
+
+        statusChart.data.datasets[0].data = [
+            counts.ok,
+            counts.warn,
+            counts.expired,
+            counts.nodata
+        ];
+        
+        statusChart.update();
+    }
+
+    // ==========================================
+    // ORGANIZAÇÃO POR ÁREAS
+    // ==========================================
+    function renderizarOrganizacao() {
+        const container = document.getElementById('areas-container');
+        container.innerHTML = '';
+        
+        const areas = {};
+        db.forEach(item => {
+            const nomeArea = item.area || 'Sem Área Definida';
+            if (!areas[nomeArea]) areas[nomeArea] = [];
+            areas[nomeArea].push(item);
+        });
+
+        if (Object.keys(areas).length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <p>Nenhuma área cadastrada ainda</p>
+                    <small>Cadastre equipamentos com áreas definidas para vê-los organizados aqui</small>
+                </div>`;
+            return;
+        }
+
+        Object.keys(areas).sort().forEach(nomeArea => {
+            const itens = areas[nomeArea];
+            const qtd = itens.length;
+            
+            // Contar status
+            let statusCounts = { ok: 0, warn: 0, expired: 0, nodata: 0 };
+            itens.forEach(item => {
+                const st = getStatus(item.validade);
+                if(st.class === 'ok') statusCounts.ok++;
+                else if(st.class === 'warning') statusCounts.warn++;
+                else if(st.class === 'expired') statusCounts.expired++;
+                else statusCounts.nodata++;
+            });
+            
+            const div = document.createElement('div');
+            div.className = 'area-section';
+            
+            let itensHtml = '';
+            itens.forEach(item => {
+                const st = getStatus(item.validade);
+                const statusColor = {
+                    'expired': '#c62828',
+                    'warning': '#ff9800',
+                    'ok': '#2e7d32',
+                    'nodata': '#78909c'
+                }[st.class];
+                
+                // Ícone de chave se for mangueira
+                const chaveIcon = (item.tipo && item.tipo.toLowerCase() === 'mangueira' && item.chaveStorz) 
+                    ? ` <i class="fas fa-key" style="color: #f57c00; font-size: 0.8rem;" title="Chave Storz: ${item.chaveStorz === 'sim' ? 'Sim' : 'Não'}"></i>` 
+                    : '';
+                
+                itensHtml += `
+                    <div style="padding: 12px; border-bottom: 1px solid #f0f0f0; display:flex; justify-content:space-between; align-items: center; cursor: pointer; transition: all 0.2s;" 
+                         onclick="abrirDetalhes(${item.id})"
+                         onmouseover="this.style.background='#f8f9fa'"
+                         onmouseout="this.style.background='white'">
+                        <span style="display: flex; align-items: center; gap: 10px;">
+                            <i class="fas ${st.icon}" style="color:${statusColor}; font-size: 1.1rem;"></i> 
+                            <div>
+                                <strong style="color: var(--text-main);">${item.codigo}</strong> - ${item.tipo} ${chaveIcon}
+                                <br>
+                                <small style="color: var(--text-sub);">${item.descricao}</small>
+                            </div>
+                        </span>
+                        <small style="color: var(--text-sub); text-align: right;">
+                            <i class="fas fa-location-arrow"></i> ${item.local}
+                        </small>
+                    </div>
+                `;
+            });
+
+            // Adicionar badges de status
+            const statusBadges = `
+                ${statusCounts.ok > 0 ? `<span class="badge" style="background: #43a047; margin-left: 5px;">${statusCounts.ok} OK</span>` : ''}
+                ${statusCounts.warn > 0 ? `<span class="badge" style="background: #fb8c00; margin-left: 5px;">${statusCounts.warn} Atenção</span>` : ''}
+                ${statusCounts.expired > 0 ? `<span class="badge" style="background: #e53935; margin-left: 5px;">${statusCounts.expired} Vencidos</span>` : ''}
+                ${statusCounts.nodata > 0 ? `<span class="badge" style="background: #78909c; margin-left: 5px;">${statusCounts.nodata} S/Data</span>` : ''}
+            `;
+
+            div.innerHTML = `
+                <div class="area-header" onclick="toggleArea(this)">
+                    <span style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-chevron-right" style="transition: transform 0.3s;"></i>
+                        <i class="fas fa-map-marker-alt"></i> 
+                        <strong>${nomeArea}</strong>
+                    </span>
+                    <div>
+                        ${statusBadges}
+                        <span class="badge" style="background:var(--secondary); margin-left: 5px;">${qtd} total</span>
+                    </div>
+                </div>
+                <div class="area-content">
+                    ${itensHtml}
+                    ${!isReadOnly ? `
+                    <div style="text-align:right; padding:15px; background:#fafafa; border-top: 2px solid #e0e0e0;">
+                        <button onclick="event.stopPropagation(); excluirArea('${nomeArea}')" 
+                                style="padding: 8px 15px; background: linear-gradient(135deg, #ffebee, #ffcdd2); 
+                                       color: var(--danger); border: none; border-radius: 8px; cursor: pointer; 
+                                       font-weight: 600; transition: all 0.3s;"
+                                onmouseover="this.style.background='linear-gradient(135deg, var(--danger), #b71c1c)'; this.style.color='white';"
+                                onmouseout="this.style.background='linear-gradient(135deg, #ffebee, #ffcdd2)'; this.style.color='var(--danger)';">
+                            <i class="fas fa-trash"></i> Excluir toda esta área
+                        </button>
+                    </div>` : ''}
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function toggleArea(header) {
+        const content = header.nextElementSibling;
+        const icon = header.querySelector('i.fa-chevron-right');
+        
+        content.classList.toggle('open');
+        header.classList.toggle('open');
+        
+        if (content.classList.contains('open')) {
+            icon.style.transform = 'rotate(90deg)';
+        } else {
+            icon.style.transform = 'rotate(0deg)';
+        }
+    }
+    
+    function excluirArea(nomeArea) {
+        if(isReadOnly) return;
+        if(confirm(`⚠️ ATENÇÃO: Isso excluirá TODOS os ${db.filter(i => i.area === nomeArea).length} equipamento(s) da área "${nomeArea}".\n\n❌ Esta ação NÃO pode ser desfeita!\n\n✅ Confirmar exclusão?`)) {
+            db = db.filter(item => item.area !== nomeArea);
+            localStorage.setItem('fire_db', JSON.stringify(db));
+            atualizarUI();
+            renderizarOrganizacao();
+            showToast(`🗑️ Área "${nomeArea}" excluída com sucesso`);
+        }
+    }
+
+    // ==========================================
+    // BUSCA AVANÇADA
+    // ==========================================
+    function aplicarFiltro(elemento, filtro) {
+        // Atualizar visual dos filtros
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.classList.remove('active');
+        });
+        elemento.classList.add('active');
+        
+        filtroAtivoBusca = filtro;
+        realizarBuscaAvancada();
+    }
+
+    function realizarBuscaAvancada() {
+        const termo = document.getElementById('busca-input').value.toLowerCase();
+        const resultsDiv = document.getElementById('busca-results');
+        const statsDiv = document.getElementById('busca-stats');
+        const countSpan = document.getElementById('busca-count');
+        
+        // Se não houver termo, mostrar estado inicial
+        if (termo.length === 0) {
+            resultsDiv.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-search"></i>
+                    <p>Digite acima para buscar equipamentos</p>
+                    <small>Busque por código, tipo, descrição, área ou local</small>
+                </div>`;
+            statsDiv.style.display = 'none';
+            return;
+        }
+
+        // Filtrar por termo
+        let filtered = db.filter(item => 
+            item.codigo.toLowerCase().includes(termo) ||
+            item.tipo.toLowerCase().includes(termo) ||
+            item.descricao.toLowerCase().includes(termo) ||
+            item.local.toLowerCase().includes(termo) ||
+            item.area.toLowerCase().includes(termo)
+        );
+
+        // Aplicar filtro de status
+        if (filtroAtivoBusca !== 'all') {
+            filtered = filtered.filter(item => {
+                const st = getStatus(item.validade);
+                return st.class === filtroAtivoBusca;
+            });
+        }
+
+        // Mostrar resultados
+        if (filtered.length === 0) {
+            resultsDiv.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-search-minus"></i>
+                    <p>Nenhum resultado encontrado</p>
+                    <small>Tente outros termos de busca ou ajuste os filtros</small>
+                </div>`;
+            statsDiv.style.display = 'none';
+            return;
+        }
+
+        resultsDiv.innerHTML = '<div class="item-list">' + 
+            filtered.map(item => {
+                const st = getStatus(item.validade);
+                return criarCardItem(item, st);
+            }).join('') +
+            '</div>';
+        
+        countSpan.textContent = filtered.length;
+        statsDiv.style.display = 'block';
+    }
+
+    function filtrarLista(filtro) {
+        navegar('lista');
+        
+        if (filtro === 'nodata') {
+            mudarSubAbaLista('sem-data');
+        } else {
+            mudarSubAbaLista('com-data');
+            
+            if (filtro !== 'all') {
+                setTimeout(() => {
+                    const cards = document.querySelectorAll('#container-itens-data .item-card');
+                    cards.forEach(card => {
+                        const shouldHighlight = 
+                            (filtro === 'expired' && card.classList.contains('expired')) ||
+                            (filtro === 'warn' && card.classList.contains('warning')) ||
+                            (filtro === 'ok' && card.classList.contains('ok'));
+                        
+                        card.style.opacity = shouldHighlight ? '1' : '0.3';
+                    });
+                    
+                    // Resetar após 4 segundos
+                    setTimeout(() => {
+                        cards.forEach(card => card.style.opacity = '1');
+                    }, 4000);
+                }, 100);
+            }
+        }
+    }
+
+    // ==========================================
+    // MODAL DE DETALHES
+    // ==========================================
+    function abrirDetalhes(id) {
+        const item = db.find(i => i.id === id);
+        if (!item) return;
+
+        const st = getStatus(item.validade);
+        const modalBody = document.getElementById('modal-body');
+        
+        const statusBadgeColor = {
+            'expired': '#c62828',
+            'warning': '#ff9800',
+            'ok': '#2e7d32',
+            'nodata': '#78909c'
+        }[st.class];
+        
+        // Informação da chave Storz se for mangueira
+        const chaveStorzInfo = (item.tipo && item.tipo.toLowerCase() === 'mangueira' && item.chaveStorz) 
+            ? `<p style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-key" style="color: #f57c00; width: 20px;"></i>
+                <strong>Chave Storz:</strong> ${item.chaveStorz === 'sim' ? 'Sim' : 'Não'}
+               </p>` 
+            : '';
+        
+        modalBody.innerHTML = `
+            <div style="margin-bottom: 20px; text-align: center;">
+                <span class="badge" style="background: ${statusBadgeColor}; font-size: 1.1rem; padding: 8px 20px;">
+                    <i class="fas ${st.icon}"></i> ${st.text}
+                </span>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                <p style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-barcode" style="color: var(--primary); width: 20px;"></i>
+                    <strong>Código:</strong> <span style="color: var(--primary); font-weight: 600;">${item.codigo}</span>
+                </p>
+                <p style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-fire-extinguisher" style="color: var(--primary); width: 20px;"></i>
+                    <strong>Tipo:</strong> ${item.tipo}
+                </p>
+                <p style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-align-left" style="color: var(--primary); width: 20px;"></i>
+                    <strong>Descrição:</strong> ${item.descricao}
+                </p>
+                ${chaveStorzInfo}
+            </div>
+            
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                <p style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-map-marker-alt" style="color: #1976d2; width: 20px;"></i>
+                    <strong>Área:</strong> ${item.area}
+                </p>
+                <p style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-location-arrow" style="color: #1976d2; width: 20px;"></i>
+                    <strong>Local:</strong> ${item.local}
+                </p>
+            </div>
+            
+            ${item.validade ? `
+            <div style="background: #fff3e0; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                <p style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-calendar-check" style="color: #f57c00; width: 20px;"></i>
+                    <strong>Última Inspeção:</strong> ${item.ultima ? item.ultima.split('-').reverse().join('/') : 'Não informada'}
+                </p>
+                <p style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-calendar-times" style="color: #f57c00; width: 20px;"></i>
+                    <strong>Próxima Validade:</strong> ${item.validade.split('-').reverse().join('/')}
+                </p>
+                <p style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-clock" style="color: #f57c00; width: 20px;"></i>
+                    <strong>Dias Restantes:</strong> <span style="font-weight: 600; color: ${statusBadgeColor};">${st.days !== null ? st.days + ' dias' : 'N/A'}</span>
+                </p>
+            </div>
+            ` : `
+            <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin-bottom: 15px; text-align: center;">
+                <i class="fas fa-box" style="font-size: 2rem; color: #78909c; margin-bottom: 10px;"></i>
+                <p><strong>Item de inventário sem controle de validade</strong></p>
+            </div>
+            `}
+            
+            ${item.obs ? `
+            <div style="background: #fff9c4; padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 4px solid #fbc02d;">
+                <p style="margin: 0; display: flex; align-items: flex-start; gap: 10px;">
+                    <i class="fas fa-sticky-note" style="color: #f57c00; width: 20px; margin-top: 3px;"></i>
+                    <span><strong>Observações:</strong><br>${item.obs}</span>
+                </p>
+            </div>
+            ` : ''}
+            
+            ${!isReadOnly ? `
+            <div style="margin-top: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button onclick="fecharModal(); editarItem(${item.id})" 
+                        style="padding: 12px 20px; background: linear-gradient(135deg, #1976d2, #1565c0); 
+                               color: white; border: none; border-radius: 8px; cursor: pointer; 
+                               font-weight: 600; transition: all 0.3s;"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)';"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                    <i class="fas fa-edit"></i> Editar
+                </button>
+                <button onclick="fecharModal(); excluirItem(${item.id})" 
+                        style="padding: 12px 20px; background: linear-gradient(135deg, var(--danger), #b71c1c); 
+                               color: white; border: none; border-radius: 8px; cursor: pointer; 
+                               font-weight: 600; transition: all 0.3s;"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)';"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                    <i class="fas fa-trash"></i> Excluir
+                </button>
+            </div>
+            ` : ''}
+        `;
+        
+        document.getElementById('modal-detalhes').style.display = 'flex';
+    }
+
+    function fecharModal(event) {
+        if (!event || event.target.id === 'modal-detalhes' || event.target.classList.contains('modal-close')) {
+            document.getElementById('modal-detalhes').style.display = 'none';
+        }
+    }
+
+    // ==========================================
+    // COMPARTILHAMENTO E ACESSO
+    // ==========================================
+    function gerarLink() {
+        const minutos = parseInt(document.getElementById('share-time').value);
+        const expiracao = Date.now() + (minutos * 60 * 1000);
+        const tokenPayload = JSON.stringify({ exp: expiracao });
+        const token = btoa(tokenPayload);
+        const url = `${window.location.protocol}//${window.location.host}${window.location.pathname}?token=${token}`;
+        
+        document.getElementById('share-url').value = url;
+        document.getElementById('link-result').style.display = 'block';
+        showToast('🔗 Link gerado com sucesso!');
+    }
+
+    function copiarLink() {
+        const copyText = document.getElementById("share-url");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // Para mobile
+        
+        try {
+            document.execCommand("copy");
+            showToast("📋 Link copiado para a área de transferência!");
+        } catch (err) {
+            // Fallback para navegadores modernos
+            navigator.clipboard.writeText(copyText.value).then(() => {
+                showToast("📋 Link copiado!");
+            });
+        }
+    }
+
+    function verificarAcessoCompartilhado() {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+
+        if (token) {
+            try {
+                const payload = JSON.parse(atob(token));
+                const agora = Date.now();
+
+                if (agora > payload.exp) {
+                    document.body.innerHTML = `
+                        <div style="text-align:center; padding:80px 20px; background: var(--bg); min-height: 100vh;">
+                            <div style="max-width: 500px; margin: auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+                                <i class="fas fa-lock" style="font-size: 5rem; color: var(--danger); margin-bottom: 20px;"></i>
+                                <h1 style="color: var(--danger); margin: 20px 0;">Acesso Expirado</h1>
+                                <p style="color: var(--text-sub); font-size: 1.1rem; line-height: 1.6;">
+                                    Este link de compartilhamento não é mais válido.<br>
+                                    Solicite um novo link ao administrador.
+                                </p>
+                                <a href="${window.location.pathname}" 
+                                   style="display: inline-block; margin-top: 30px; padding: 15px 30px; 
+                                          background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+                                          color: white; text-decoration: none; border-radius: 10px; 
+                                          font-weight: bold; transition: all 0.3s;"
+                                   onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.2)';"
+                                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                                    <i class="fas fa-home"></i> Voltar ao Início
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    throw new Error("Token expirado");
+                }
+
+                isReadOnly = true;
+                document.getElementById('readonly-banner').style.display = 'block';
+                
+                // Esconder botão de relatórios e outras funcionalidades administrativas
+                const btnRelatorios = document.getElementById('btn-relatorios');
+                if (btnRelatorios) btnRelatorios.style.display = 'none';
+                
+                // Remover aba de cadastro na navegação
+                const navButtons = document.querySelectorAll('.nav-btn');
+                navButtons.forEach(btn => {
+                    if (btn.getAttribute('onclick')?.includes('cadastro')) {
+                        btn.style.display = 'none';
+                    }
+                });
+                
+                showToast('👁️ Modo de visualização ativado');
+                
+            } catch (e) {
+                console.error("Erro ao validar token", e);
+                if (!e.message.includes("Token expirado")) {
+                    document.body.innerHTML = `
+                        <div style="text-align:center; padding:80px 20px;">
+                            <h1 style='color: var(--danger); font-size: 3rem;'>🔒 Link Inválido</h1>
+                            <p style="color: var(--text-sub); font-size: 1.2rem;">O link de acesso não é válido.</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+    }
+
+    // ==========================================
+    // EXPORTAÇÃO DE DADOS
+    // ==========================================
+    function gerarPDF() {
+        if(isReadOnly) {
+            showToast('❌ Função não disponível no modo visualização');
+            return;
+        }
+        
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Cabeçalho
+        doc.setFontSize(18);
+        doc.setTextColor(211, 47, 47);
+        doc.text("FireGuardian Pro - Relatório Completo", 14, 20);
+        
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 28);
+        doc.text(`Total de Itens: ${db.length}`, 14, 34);
+        
+        // Preparar dados
+        const tableColumn = ["TAG", "Tipo", "Descrição", "Área", "Local", "Validade", "Status", "Chave Storz"];
+        const tableRows = [];
+
+        db.forEach(item => {
+            const st = getStatus(item.validade);
+            const validade = item.validade ? item.validade.split('-').reverse().join('/') : 'N/A';
+            const status = st.text;
+            const chaveStorz = (item.tipo && item.tipo.toLowerCase() === 'mangueira' && item.chaveStorz) 
+                ? (item.chaveStorz === 'sim' ? 'Sim' : 'Não') 
+                : 'N/A';
+            
+            tableRows.push([
+                item.codigo, 
+                item.tipo, 
+                item.descricao, 
+                item.area, 
+                item.local, 
+                validade,
+                status,
+                chaveStorz
+            ]);
+        });
+
+        // Gerar tabela
+        doc.autoTable({
+            head: [tableColumn],
+            body: tableRows,
+            startY: 40,
+            styles: { 
+                fontSize: 8,
+                cellPadding: 3
+            },
+            headStyles: { 
+                fillColor: [211, 47, 47],
+                fontStyle: 'bold'
+            },
+            alternateRowStyles: {
+                fillColor: [245, 245, 245]
+            },
+            margin: { top: 40 }
+        });
+
+        // Salvar
+        doc.save(`FireGuardian_Relatorio_${new Date().toISOString().split('T')[0]}.pdf`);
+        showToast('📄 PDF gerado com sucesso!');
+    }
+
+    function gerarExcel() {
+        if(isReadOnly) {
+            showToast('❌ Função não disponível no modo visualização');
+            return;
+        }
+        
+        const dadosExport = db.map(item => {
+            const st = getStatus(item.validade);
+            const chaveStorz = (item.tipo && item.tipo.toLowerCase() === 'mangueira' && item.chaveStorz) 
+                ? (item.chaveStorz === 'sim' ? 'Sim' : 'Não') 
+                : 'N/A';
+            
+            return {
+                'Código/TAG': item.codigo,
+                'Tipo': item.tipo,
+                'Descrição': item.descricao,
+                'Área': item.area,
+                'Local': item.local,
+                'Última Inspeção': item.ultima ? item.ultima.split('-').reverse().join('/') : 'N/A',
+                'Validade': item.validade ? item.validade.split('-').reverse().join('/') : 'N/A',
+                'Status': st.text,
+                'Dias Restantes': st.days !== null ? st.days : 'N/A',
+                'Chave Storz': chaveStorz,
+                'Observações': item.obs || ''
+            };
+        });
+        
+        const ws = XLSX.utils.json_to_sheet(dadosExport);
+        
+        // Ajustar largura das colunas
+        const colWidths = [
+            { wch: 12 }, // Código
+            { wch: 15 }, // Tipo
+            { wch: 30 }, // Descrição
+            { wch: 20 }, // Área
+            { wch: 20 }, // Local
+            { wch: 15 }, // Última Inspeção
+            { wch: 15 }, // Validade
+            { wch: 12 }, // Status
+            { wch: 12 }, // Dias
+            { wch: 12 }, // Chave Storz
+            { wch: 30 }  // Observações
+        ];
+        ws['!cols'] = colWidths;
+        
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Equipamentos");
+        
+        XLSX.writeFile(wb, `FireGuardian_Inventario_${new Date().toISOString().split('T')[0]}.xlsx`);
+        showToast('📊 Excel gerado com sucesso!');
+    }
+
+    // ==========================================
+    // UTILITÁRIOS
+    // ==========================================
+    function showToast(mensagem) {
+        const toast = document.getElementById('toast');
+        toast.textContent = mensagem;
+        toast.style.display = 'block';
+        
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3500);
+    }
+
+    // Atalhos de teclado
+    document.addEventListener('keydown', (e) => {
+        // Ctrl/Cmd + S para salvar (se estiver no cadastro)
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            const cadastroAtivo = document.getElementById('cadastro').classList.contains('active');
+            if (cadastroAtivo && !isReadOnly) {
+                document.getElementById('form-equipamento').requestSubmit();
+            }
+        }
+        
+        // ESC para fechar modal
+        if (e.key === 'Escape') {
+            fecharModal();
+        }
+    });
+
 </script>
-
 </body>
-</html>
+    </html>
