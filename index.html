@@ -1,11 +1,1439 @@
-{
-  "usuario": "Junix-Su",
-  "servidor": {
-    "host": "BrasilSsh.Xyz",
-    "porta": 22,
-    "pais": "BR"
-  },
-  "status": "ativo",
-  "expira_em": "2026-05-28T10:00:00Z",
-  "criado_em": "2026-04-25T00:00:00Z"
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>InvestPro | Simulador de Renda Fixa Brasil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: { extend: { fontFamily: { sans: ['Syne','sans-serif'], mono: ['DM Mono','monospace'] } } }
+        }
+    </script>
+    <style>
+        :root {
+            --accent: #10b981; --accent2: #0ea5e9;
+            --bg: #0e1a28; --card: #162233; --card2: #1c2c3d; --border: #2b3f54;
+            --text: #e8f0f8; --sub: #9bb1c8;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .dark-theme  { --bg:#0e1a28;--card:#162233;--card2:#1c2c3d;--border:#2b3f54;--text:#e8f0f8;--sub:#9bb1c8; }
+        .light-theme { --bg:#f0f4f8;--card:#ffffff;--card2:#f8fafc;--border:#cbd5e1;--text:#1e293b;--sub:#64748b; }
+
+        *{box-sizing:border-box;}
+        body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;overscroll-behavior-y:contain;min-height:100vh;transition:background .3s,color .3s;}
+        .hide-scrollbar::-webkit-scrollbar{display:none;} .hide-scrollbar{-ms-overflow-style:none;scrollbar-width:none;}
+        .no-select{user-select:none;-webkit-user-select:none;}
+        .card{background:var(--card);border:1px solid var(--border);border-radius:18px;transition:background .3s,border-color .3s;}
+        .card-inner{background:var(--card2);border:1px solid var(--border);border-radius:14px;transition:background .3s,border-color .3s;}
+
+        /* Bottom Nav */
+        .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--card);border-top:1px solid var(--border);display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));transition:background .3s,border-color .3s;}
+        .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent;}
+        .nav-item svg{transition:transform .2s;} .nav-item.active svg{transform:scale(1.1);}
+        .nav-item span{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--sub);transition:color .2s;}
+        .nav-item.active span{color:var(--accent);}
+        .nav-dot{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+        .nav-item.active .nav-dot{background:rgba(16,185,129,.15);}
+
+        /* Inputs */
+        input,select,button{font-size:16px!important;}
+        .inp{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:'DM Mono',monospace;font-weight:500;padding:12px 16px;outline:none;transition:border-color .2s,background .3s;}
+        .inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(16,185,129,.12);}
+        .inp-prefix{position:relative;} .inp-prefix span,.inp-suffix span{position:absolute;top:50%;transform:translateY(-50%);color:var(--sub);font-family:'DM Mono',monospace;font-size:14px;pointer-events:none;}
+        .inp-prefix span{left:14px;} .inp-suffix span{right:14px;}
+        .inp-prefix .inp{padding-left:44px;} .inp-suffix .inp{padding-right:36px;}
+        select.inp{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236e8fac'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:16px;padding-right:36px;cursor:pointer;}
+        select.inp option{background:var(--card);}
+
+        /* Sliders */
+        input[type="range"]{-webkit-appearance:none;height:6px;background:var(--border);border-radius:4px;outline:none;width:100%;cursor:pointer;}
+        input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;background:var(--accent);border-radius:50%;box-shadow:0 0 0 4px rgba(16,185,129,.15);cursor:pointer;}
+        input[type="range"].sky-slider::-webkit-slider-thumb{background:#0ea5e9;box-shadow:0 0 0 4px rgba(14,165,233,.15);}
+        input[type="range"].purple-slider::-webkit-slider-thumb{background:#8b5cf6;box-shadow:0 0 0 4px rgba(139,92,246,.15);}
+        input[type="range"].rose-slider::-webkit-slider-thumb{background:#f43f5e;box-shadow:0 0 0 4px rgba(244,63,94,.15);}
+        input[type="range"].pink-slider::-webkit-slider-thumb{background:#ec4899;box-shadow:0 0 0 4px rgba(236,72,153,.15);}
+        input[type="range"].cyan-slider::-webkit-slider-thumb{background:#06b6d4;box-shadow:0 0 0 4px rgba(6,182,212,.15);}
+        input[type="range"].amber-slider::-webkit-slider-thumb{background:#f59e0b;box-shadow:0 0 0 4px rgba(245,158,11,.15);}
+        input[type="range"].violet-slider::-webkit-slider-thumb{background:#7c3aed;box-shadow:0 0 0 4px rgba(124,58,237,.15);}
+        input[type="range"].orange-slider::-webkit-slider-thumb{background:#ea580c;box-shadow:0 0 0 4px rgba(234,88,12,.15);}
+
+        /* Toggle */
+        .toggle-wrap{position:relative;display:inline-block;width:44px;height:24px;}
+        .toggle-wrap input{opacity:0;width:0;height:0;}
+        .toggle-track{position:absolute;inset:0;background:var(--border);border-radius:24px;cursor:pointer;transition:background .25s;}
+        .toggle-track::after{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .25s;}
+        .toggle-wrap input:checked+.toggle-track{background:var(--accent);}
+        .toggle-wrap input:checked+.toggle-track::after{transform:translateX(20px);}
+
+        /* Badge */
+        .badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:3px 10px;border-radius:99px;}
+        .badge-sync{background:rgba(14,165,233,.12);color:#38bdf8;}
+        .badge-online{background:rgba(16,185,129,.12);color:#34d399;}
+        .badge-offline{background:rgba(245,158,11,.12);color:#fbbf24;}
+
+        /* Hero */
+        .hero-section{background:linear-gradient(135deg,#162233 0%,#1a2f42 60%,#0f2318 100%);border:1px solid var(--border);border-radius:22px;position:relative;overflow:hidden;}
+        .hero-section::before{content:'';position:absolute;right:-40px;top:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(16,185,129,.18) 0%,transparent 70%);border-radius:50%;}
+        .hero-section::after{content:'';position:absolute;left:-30px;bottom:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(14,165,233,.1) 0%,transparent 70%);border-radius:50%;}
+
+        /* Comp Cards */
+        .comp-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s,background .3s;}
+        .comp-card.best{border-color:rgba(16,185,129,.5);background:rgba(16,185,129,.05);}
+
+        /* Edu cards */
+        .edu-card{background:var(--card2);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:background .3s,border-color .3s;}
+        .edu-header{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+        .edu-body{display:none;padding:0 16px 16px;}
+        .edu-body.open{display:block;}
+        .edu-chevron{transition:transform .25s;} .edu-chevron.open{transform:rotate(180deg);}
+
+        /* Saved */
+        .saved-sim{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:16px;transition:background .3s,border-color .3s;}
+
+        /* Toast */
+        #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card2);border:1px solid var(--border);border-radius:99px;padding:10px 20px;font-size:12px;font-weight:700;color:var(--text);opacity:0;transition:all .3s;pointer-events:none;z-index:200;white-space:nowrap;}
+        #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+        /* Utils */
+        .rank{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;}
+        .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+        .field-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--sub);margin-bottom:6px;display:block;}
+        .ticker-item{display:flex;flex-direction:column;}
+        .ticker-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--sub);}
+        .ticker-val{font-family:'DM Mono',monospace;font-weight:500;font-size:13px;}
+        .ticker-sep{width:1px;background:var(--border);align-self:stretch;}
+        .section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--sub);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+        .section-title::before{content:'';display:block;width:3px;height:14px;background:var(--accent);border-radius:2px;}
+        @keyframes pulse-sub{0%,100%{opacity:.4}50%{opacity:1}} .loading-pulse{animation:pulse-sub 1.4s ease-in-out infinite;}
+        @keyframes fade-up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}} .fade-up{animation:fade-up .4s ease both;}
+        .chart-wrap{height:300px;position:relative;}
+        .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+        .btn-refresh,.btn-action{height:48px;background:var(--card2);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;}
+        .btn-refresh:active,.btn-action:active{background:var(--border);transform:scale(.98);}
+        .profit-pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;}
+        .profit-up{background:rgba(16,185,129,.12);color:#34d399;} .profit-down{background:rgba(239,68,68,.12);color:#f87171;}
+        .badge-tag{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;padding:2px 8px;border-radius:99px;}
+        .tag-best-short{background:rgba(16,185,129,.15);color:#34d399;}
+        .tag-isento{background:rgba(14,165,233,.15);color:#38bdf8;}
+        .tag-inflacao{background:rgba(244,63,94,.15);color:#fb7185;}
+        .tag-longo{background:rgba(139,92,246,.15);color:#a78bfa;}
+        .tag-fgc{background:rgba(245,158,11,.15);color:#fbbf24;}
+        .slider-ticks{display:flex;justify-content:space-between;margin-top:4px;padding:0 2px;}
+        .slider-ticks span{font-size:9px;color:var(--sub);font-family:'DM Mono',monospace;}
+        .scenario-btn{flex:1;padding:8px 4px;border-radius:8px;font-size:11px;font-weight:700;text-align:center;cursor:pointer;border:1px solid var(--border);background:var(--card2);color:var(--sub);transition:all .2s;}
+        .scenario-btn.active{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.4);color:var(--accent);}
+
+        /* Compare Table */
+        .comp-table{width:100%;border-collapse:collapse;}
+        .comp-table th{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--sub);font-weight:700;padding:8px 10px;text-align:right;border-bottom:1px solid var(--border);}
+        .comp-table th:first-child{text-align:left;}
+        .comp-table td{font-family:'DM Mono',monospace;font-size:11px;padding:10px 10px;border-bottom:1px solid rgba(43,63,84,.4);text-align:right;vertical-align:middle;}
+        .comp-table td:first-child{text-align:left;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;}
+        .comp-table tr.best-row td{color:#34d399;}
+        .comp-table tr:last-child td{border-bottom:none;}
+
+        /* Pill Toggle */
+        .pill-toggle{display:flex;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:4px;}
+        .pill-option{flex:1;text-align:center;padding:7px 8px;font-size:11px;font-weight:700;border-radius:7px;cursor:pointer;color:var(--sub);transition:all .2s;}
+        .pill-option.active{background:var(--card);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.2);}
+
+        /* Views */
+        .view{display:none;flex-direction:column;gap:16px;}
+        .view.active{display:flex;}
+
+        /* Compare redesign */
+        .metric-card{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:14px 16px;transition:background .3s,border-color .3s;}
+        .metric-card.highlight{border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.05);}
+        .bar-track{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:6px;}
+        .bar-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.25,.46,.45,.94);}
+        .comp-row{padding:12px 0;border-bottom:1px solid rgba(43,63,84,.35);}
+        .comp-row:last-child{border-bottom:none;}
+        .risk-pill{font-size:9px;font-weight:700;padding:2px 8px;border-radius:99px;display:inline-block;}
+        .risk-low{background:rgba(16,185,129,.12);color:#34d399;}
+        .risk-mid{background:rgba(245,158,11,.12);color:#fbbf24;}
+        .risk-high{background:rgba(239,68,68,.12);color:#f87171;}
+
+        footer{padding:28px 16px 32px;text-align:center;}
+        footer p{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:.1em;}
+        footer p+p{margin-top:4px;font-style:italic;text-transform:none;letter-spacing:0;font-size:9px;}
+    </style>
+</head>
+<body class="dark-theme">
+
+<div id="toast">✓ Dados atualizados</div>
+
+<!-- Header -->
+<header class="sticky top-0 z-50" style="background:var(--card);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);">
+    <div style="padding:12px 16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="background:var(--accent);padding:7px;border-radius:10px;display:flex;">
+                    <svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                </div>
+                <div>
+                    <span style="font-weight:800;font-size:17px;letter-spacing:-.03em;">InvestPro</span>
+                    <span style="font-size:9px;color:var(--sub);display:block;margin-top:-2px;text-transform:uppercase;letter-spacing:.08em;">Renda Fixa Brasil</span>
+                </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <span id="status-badge" class="badge badge-sync loading-pulse">Sincronizando...</span>
+                <button onclick="toggleTheme()" style="background:var(--card2);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;" title="Alternar tema">
+                    <svg id="theme-icon" width="15" height="15" fill="none" stroke="var(--sub)" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                </button>
+            </div>
+        </div>
+        <div style="display:flex;gap:0;margin-top:12px;overflow-x:auto;" class="hide-scrollbar no-select">
+            <div class="ticker-item" style="padding-right:14px;"><span class="ticker-label">Selic</span><span id="top-selic" class="ticker-val" style="color:#34d399;">--%</span></div>
+            <div class="ticker-sep" style="margin-right:14px;"></div>
+            <div class="ticker-item" style="padding-right:14px;"><span class="ticker-label">CDI</span><span id="top-cdi" class="ticker-val" style="color:#38bdf8;">--%</span></div>
+            <div class="ticker-sep" style="margin-right:14px;"></div>
+            <div class="ticker-item" style="padding-right:14px;"><span class="ticker-label">IPCA 12m</span><span id="top-ipca" class="ticker-val" style="color:#fb923c;">--%</span></div>
+            <div class="ticker-sep" style="margin-right:14px;"></div>
+            <div class="ticker-item" style="padding-right:14px;"><span class="ticker-label">IPCA Proj.</span><span id="top-ipca-proj" class="ticker-val" style="color:#f59e0b;">--%</span></div>
+            <div class="ticker-sep" style="margin-right:14px;"></div>
+            <div class="ticker-item"><span class="ticker-label">Prazo</span><span id="top-months" class="ticker-val" style="color:var(--sub);">-- meses</span></div>
+        </div>
+    </div>
+</header>
+
+<main style="padding:16px;max-width:520px;margin:0 auto;padding-bottom:96px;display:flex;flex-direction:column;gap:16px;">
+
+    <!-- ====== VIEW: SIMULAR ====== -->
+    <div id="view-pos" class="view active">
+
+        <!-- Scenario -->
+        <div class="card" style="padding:14px;">
+            <div class="section-title" style="margin-bottom:10px;">Cenário Macroeconômico</div>
+            <div style="display:flex;gap:6px;">
+                <div class="scenario-btn active" id="sc-base" onclick="setScenario('base')">Base</div>
+                <div class="scenario-btn" id="sc-otimista" onclick="setScenario('otimista')">Otimista</div>
+                <div class="scenario-btn" id="sc-pessimista" onclick="setScenario('pessimista')">Pessimista</div>
+            </div>
+            <p id="scenario-desc" style="font-size:10px;color:var(--sub);margin-top:8px;font-style:italic;">Selic e IPCA nos níveis atuais de mercado.</p>
+        </div>
+
+        <!-- Hero -->
+        <div class="hero-section" style="padding:24px 22px;">
+            <div style="position:relative;z-index:1;">
+                <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin-bottom:6px;">Resultado Projetado</p>
+                <h1 id="hero-net-value" class="fade-up" style="font-family:'DM Mono',monospace;font-size:clamp(28px,8vw,40px);font-weight:700;letter-spacing:-.03em;color:#fff;line-height:1;">R$ 0,00</h1>
+                <div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;">
+                    <span id="hero-label" style="font-size:12px;color:var(--sub);">Melhor opção: —</span>
+                    <span style="width:4px;height:4px;background:rgba(255,255,255,.2);border-radius:50%;"></span>
+                    <span id="hero-profit" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:#34d399;">+R$ 0,00</span>
+                </div>
+                <div id="hero-badges" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;"></div>
+                <div style="display:flex;gap:20px;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07);">
+                    <div><p style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);margin-bottom:2px;">Total Investido</p><p id="hero-invested" style="font-family:'DM Mono',monospace;font-size:12px;color:#fff;">R$ 0,00</p></div>
+                    <div><p style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);margin-bottom:2px;">Rend. Bruto</p><p id="hero-gross-profit" style="font-family:'DM Mono',monospace;font-size:12px;color:#34d399;">R$ 0,00</p></div>
+                    <div><p style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);margin-bottom:2px;">IR Pago</p><p id="hero-ir" style="font-family:'DM Mono',monospace;font-size:12px;color:#fb923c;">R$ 0,00</p></div>
+                </div>
+                <div style="margin-top:14px;"><p style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);margin-bottom:2px;">Ganho Real (≈ vs IPCA)</p><p id="hero-real" style="font-family:'DM Mono',monospace;font-size:12px;color:#38bdf8;">--</p></div>
+            </div>
+        </div>
+
+        <!-- Params -->
+        <div class="card" style="padding:20px;">
+            <div class="section-title">Parâmetros da Simulação</div>
+            <div style="display:flex;flex-direction:column;gap:14px;">
+                <div>
+                    <label class="field-label" for="in-principal">Valor Inicial</label>
+                    <div class="inp-prefix"><span>R$</span><input class="inp" type="text" id="in-principal" value="10.000,00" inputmode="decimal" autocomplete="off" oninput="handleCurrencyInput(this);debouncedRecalc();"></div>
+                </div>
+                <div>
+                    <label class="field-label" for="in-monthly">Aporte Mensal</label>
+                    <div class="inp-prefix"><span>R$</span><input class="inp" type="text" id="in-monthly" value="500,00" inputmode="decimal" autocomplete="off" oninput="handleCurrencyInput(this);debouncedRecalc();"></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                    <div><label class="field-label" for="in-time">Prazo</label><input class="inp" type="number" id="in-time" value="3" inputmode="numeric" min="1" max="50" oninput="debouncedRecalc()"></div>
+                    <div><label class="field-label" for="in-time-unit">Unidade</label><select class="inp" id="in-time-unit" onchange="recalc()"><option value="years">Anos</option><option value="months">Meses</option></select></div>
+                </div>
+                <div>
+                    <label class="field-label" for="in-taxa-admin">Taxa de Administração/Custódia (a.a.)</label>
+                    <div class="inp-suffix"><span>%</span><input class="inp" type="number" id="in-taxa-admin" value="0" step="0.05" min="0" max="3" inputmode="decimal" oninput="debouncedRecalc()"></div>
+                    <p style="font-size:9px;color:var(--sub);margin-top:4px;">Tesouro Direto: 0,20% a.a. B3. Fundos DI: consulte o prospecto.</p>
+                </div>
+                <div>
+                    <label class="field-label">Regime de Emissão dos Títulos Incentivados</label>
+                    <div class="pill-toggle">
+                        <div class="pill-option active" id="tog-pre2026" onclick="setEmissao('pre')">Antes de 2026 <span style="font-size:9px;opacity:.7;">(Isento)</span></div>
+                        <div class="pill-option" id="tog-pos2026" onclick="setEmissao('pos')">A partir de 2026 <span style="font-size:9px;opacity:.7;">(~5% IR)</span></div>
+                    </div>
+                    <p id="emissao-desc" style="font-size:9px;color:var(--sub);margin-top:6px;font-style:italic;">LCI/LCA/CRI/CRA emitidos antes de 2026 mantêm isenção para PF.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rates -->
+        <div class="card" style="padding:20px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                <div class="section-title" style="margin-bottom:0;">Taxas e Ativos</div>
+                <button class="btn-refresh no-select" style="width:32px;height:32px;border-radius:8px;" onclick="fetchBCBData()" title="Atualizar dados BCB">
+                    <svg id="refresh-icon" width="16" height="16" fill="none" stroke="var(--sub)" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                </button>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:20px;">
+                <!-- IPCA Proj -->
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <div style="display:flex;align-items:center;gap:8px;"><div class="dot" style="background:#fb923c;"></div><span style="font-size:12px;font-weight:700;color:var(--text);">IPCA Projetado (futuro)</span></div>
+                        <span id="val-ipca-proj" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:#fb923c;">4.5%</span>
+                    </div>
+                    <input type="range" id="in-ipca-proj" class="amber-slider" min="10" max="200" value="45" oninput="recalc()">
+                    <div class="slider-ticks"><span>1%</span><span>5%</span><span>10%</span><span>15%</span><span>20%</span></div>
+                </div>
+                <!-- CDB -->
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <div style="display:flex;align-items:center;gap:8px;"><div class="dot" style="background:#10b981;"></div><span style="font-size:12px;font-weight:700;color:var(--text);">CDB / RDB (% CDI)</span></div>
+                        <span id="val-cdb-perc" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:#10b981;">110%</span>
+                    </div>
+                    <input type="range" id="in-cdb-perc" min="80" max="150" value="110" oninput="recalc()">
+                    <div class="slider-ticks"><span>80%</span><span>100%</span><span>110%</span><span>130%</span><span>150%</span></div>
+                </div>
+                <!-- LCI/LCA -->
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <div style="display:flex;align-items:center;gap:8px;"><div class="dot" style="background:#0ea5e9;"></div><span style="font-size:12px;font-weight:700;color:var(--text);">LCI / LCA (% CDI)</span></div>
+                        <span id="val-lci-perc" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:#0ea5e9;">92%</span>
+                    </div>
+                    <input type="range" id="in-lci-perc" class="sky-slider" min="70" max="120" value="92" oninput="recalc()">
+                    <div class="slider-ticks"><span>70%</span><span>85%</span><span>92%</span><span>107%</span><span>120%</span></div>
+                </div>
+                <!-- CRI/CRA CDI -->
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <div style="display:flex;align-items:center;gap:8px;"><div class="dot" style="background:#06b6d4;"></div><span style="font-size:12px;font-weight:700;color:var(--text);">CRI/CRA (% CDI)</span></div>
+                        <span id="val-cricra-cdi" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:#06b6d4;">100%</span>
+                    </div>
+                    <input type="range" id="in-cricra-cdi" class="cyan-slider" min="80" max="140" value="100" oninput="recalc()">
+                    <div class="slider-ticks"><span>80%</span><span>100%</span><span>120%</span><span>140%</span></div>
+                </div>
+                <!-- Tesouro Selic -->
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <div style="display:flex;align-items:center;gap:8px;"><div class="dot" style="background:#8b5cf6;"></div><span style="font-size:12px;font-weight:700;color:var(--text);">Tesouro Selic (% Selic)</span></div>
+                        <span id="val-selic-perc" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:#a78bfa;">100%</span>
+                    </div>
+                    <input type="range" id="in-selic-perc" class="purple-slider" min="95" max="105" value="100" oninput="recalc()">
+                    <div class="slider-ticks"><span>95%</span><span>97%</span><span>100%</span><span>103%</span><span>105%</span></div>
+                </div>
+                <!-- Prefixado -->
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <div style="display:flex;align-items:center;gap:8px;"><div class="dot" style="background:#7c3aed;"></div><span style="font-size:12px;font-weight:700;color:var(--text);">Tesouro Prefixado (a.a.)</span></div>
+                        <span id="val-pre-rate" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:#7c3aed;">12.5%</span>
+                    </div>
+                    <input type="range" id="in-pre-rate" class="violet-slider" min="80" max="200" value="125" oninput="recalc()">
+                    <div class="slider-ticks"><span>8%</span><span>10%</span><span>12%</span><span>16%</span><span>20%</span></div>
+                </div>
+                <!-- IPCA+ -->
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <div style="display:flex;align-items:center;gap:8px;"><div class="dot" style="background:#f43f5e;"></div><span style="font-size:12px;font-weight:700;color:var(--text);">Tesouro IPCA+ (taxa fixa)</span></div>
+                        <span id="val-ipca-rate" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:#fb7185;">6.0%</span>
+                    </div>
+                    <input type="range" id="in-ipca-rate" class="rose-slider" min="30" max="100" value="60" oninput="recalc()">
+                    <div class="slider-ticks"><span>3%</span><span>5%</span><span>7%</span><span>9%</span><span>10%</span></div>
+                </div>
+                <!-- CRI/CRA IPCA+ -->
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <div style="display:flex;align-items:center;gap:8px;"><div class="dot" style="background:#f59e0b;"></div><span style="font-size:12px;font-weight:700;color:var(--text);">CRI/CRA (IPCA+ taxa)</span></div>
+                        <span id="val-cricra-ipca" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:#fbbf24;">6.5%</span>
+                    </div>
+                    <input type="range" id="in-cricra-ipca" class="amber-slider" min="30" max="120" value="65" oninput="recalc()">
+                    <div class="slider-ticks"><span>3%</span><span>6%</span><span>9%</span><span>12%</span></div>
+                </div>
+                <!-- Debênture -->
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <div style="display:flex;align-items:center;gap:8px;"><div class="dot" style="background:#ec4899;"></div><span style="font-size:12px;font-weight:700;color:var(--text);">Debênture Incentivada (IPCA+)</span></div>
+                        <span id="val-deb-rate" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:#f472b6;">7.5%</span>
+                    </div>
+                    <input type="range" id="in-deb-rate" class="pink-slider" min="40" max="120" value="75" oninput="recalc()">
+                    <div class="slider-ticks"><span>4%</span><span>7%</span><span>10%</span><span>12%</span></div>
+                </div>
+                <!-- Fundo DI -->
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <div style="display:flex;align-items:center;gap:8px;"><div class="dot" style="background:#ea580c;"></div><span style="font-size:12px;font-weight:700;color:var(--text);">Fundo DI (% CDI)</span></div>
+                        <span id="val-fundo-perc" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:#ea580c;">95%</span>
+                    </div>
+                    <input type="range" id="in-fundo-perc" class="orange-slider" min="60" max="100" value="95" oninput="recalc()">
+                    <div class="slider-ticks"><span>60%</span><span>75%</span><span>90%</span><span>95%</span><span>100%</span></div>
+                </div>
+            </div>
+            <!-- Toggles -->
+            <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:14px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <div><p style="font-size:13px;font-weight:700;color:var(--text);">Descontar Inflação (IPCA)</p><p style="font-size:10px;color:var(--sub);margin-top:1px;">Equação de Fisher — exibir ganho real</p></div>
+                    <label class="toggle-wrap no-select"><input type="checkbox" id="in-real-gain" onchange="recalc()"><span class="toggle-track"></span></label>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <div><p style="font-size:13px;font-weight:700;color:var(--text);">Incluir Poupança</p><p style="font-size:10px;color:var(--sub);margin-top:1px;">Comparar com rendimento da poupança</p></div>
+                    <label class="toggle-wrap no-select"><input type="checkbox" id="in-show-poupanca" checked onchange="recalc()"><span class="toggle-track"></span></label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="card" style="padding:20px;">
+            <div class="section-title">Evolução Patrimonial</div>
+            <div id="chart-legend" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;"></div>
+            <div class="chart-wrap"><canvas id="chartEvolution"></canvas></div>
+        </div>
+
+        <!-- Comparison List -->
+        <div>
+            <div class="section-title" style="padding-left:2px;">Ranking Detalhado</div>
+            <div id="comparison-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+
+        <!-- Fiscal -->
+        <div class="card" style="padding:20px;">
+            <div class="section-title">Resumo Fiscal e Tributação</div>
+            <div style="overflow-x:auto;">
+                <table class="comp-table">
+                    <thead><tr><th>Ativo</th><th>IR Pago</th><th>Alíq. Média</th><th>Líquido</th></tr></thead>
+                    <tbody id="fiscal-summary"></tbody>
+                </table>
+            </div>
+            <p style="font-size:9px;color:var(--sub);margin-top:12px;font-style:italic;line-height:1.5;">
+                * Tabela regressiva de IR calculada por tranche de aporte mensal.<br>
+                * LCI, LCA, CRI, CRA e Debêntures Incentivadas emitidas antes de 2026: isentas de IR para PF.<br>
+                * Fundos DI sujeitos a come-cotas semestral (15%).
+            </p>
+        </div>
+
+        <!-- Equivalência -->
+        <div class="card" style="padding:20px;">
+            <div class="section-title">Calculadora de Equivalência</div>
+            <p style="font-size:12px;color:var(--sub);margin-bottom:14px;line-height:1.5;">Compare a rentabilidade líquida entre dois ativos.</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+                <div><label class="field-label">Ativo A (% CDI)</label><div class="inp-suffix"><span>%</span><input class="inp" type="number" id="eq-a-cdi" value="110" step="1" inputmode="decimal" oninput="calcEquiv()"></div><p style="font-size:9px;color:var(--sub);margin-top:4px;">Com IR (tributável)</p></div>
+                <div><label class="field-label">Ativo B (% CDI)</label><div class="inp-suffix"><span>%</span><input class="inp" type="number" id="eq-b-cdi" value="90" step="1" inputmode="decimal" oninput="calcEquiv()"></div><p style="font-size:9px;color:var(--sub);margin-top:4px;">Isento de IR</p></div>
+            </div>
+            <div id="equiv-result" class="card-inner" style="padding:14px;text-align:center;"></div>
+        </div>
+
+        <!-- Actions -->
+        <div style="display:flex;gap:10px;">
+            <button class="btn-action no-select" style="flex:1;font-size:13px;font-weight:700;color:var(--accent);gap:6px;" onclick="saveSimulation()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+                Salvar Simulação
+            </button>
+            <button class="btn-action no-select" style="flex:1;font-size:13px;font-weight:700;color:#38bdf8;gap:6px;" onclick="exportCSV()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Exportar CSV
+            </button>
+        </div>
+    </div>
+
+    <!-- ====== VIEW: COMPARAR (redesigned) ====== -->
+    <div id="view-comp" class="view">
+
+        <!-- Summary KPI cards -->
+        <div>
+            <div class="section-title" style="padding-left:2px;">Destaques da Simulação</div>
+            <div id="comp-kpi-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <p style="color:var(--sub);font-size:12px;grid-column:1/-1;">Execute uma simulação na aba Simular primeiro.</p>
+            </div>
+        </div>
+
+        <!-- Visual Bar Chart -->
+        <div class="card" style="padding:20px;">
+            <div class="section-title">Comparação Visual — Valor Final Líquido</div>
+            <div id="comp-bars" style="display:flex;flex-direction:column;gap:2px;">
+                <p style="color:var(--sub);font-size:12px;">Aguardando simulação...</p>
+            </div>
+        </div>
+
+        <!-- Detailed Table -->
+        <div class="card" style="padding:20px;">
+            <div class="section-title">Tabela Analítica Completa</div>
+            <div style="overflow-x:auto;" id="comp-table-wrap">
+                <p style="color:var(--sub);font-size:12px;">Aguardando simulação...</p>
+            </div>
+        </div>
+
+        <!-- Risk & Attributes -->
+        <div class="card" style="padding:20px;">
+            <div class="section-title">Perfil por Ativo</div>
+            <div id="comp-profile" style="display:flex;flex-direction:column;"></div>
+        </div>
+
+    </div>
+
+    <!-- ====== VIEW: SALVAS ====== -->
+    <div id="view-saved" class="view">
+        <div class="card" style="padding:20px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                <div class="section-title" style="margin-bottom:0;">Simulações Salvas</div>
+                <button onclick="clearAllSims()" style="font-size:10px;font-weight:700;color:#f87171;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:4px 10px;cursor:pointer;">Limpar tudo</button>
+            </div>
+            <p style="font-size:12px;color:var(--sub);margin-bottom:16px;">Salvas localmente neste dispositivo. Toque em <strong style="color:var(--accent);">Carregar</strong> para restaurar os parâmetros.</p>
+            <div id="saved-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+            <div id="saved-empty" style="text-align:center;padding:32px 0;display:none;">
+                <svg width="40" height="40" fill="none" stroke="var(--sub)" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 12px;opacity:.5;"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+                <p style="font-size:13px;font-weight:700;color:var(--sub);">Nenhuma simulação salva</p>
+                <p style="font-size:11px;color:var(--sub);margin-top:4px;opacity:.7;">Use "Salvar Simulação" na aba Simular.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== VIEW: APRENDER ====== -->
+    <div id="view-edu" class="view">
+        <div class="card" style="padding:20px;">
+            <div class="section-title">Guia dos Ativos de Renda Fixa</div>
+            <p style="font-size:12px;color:var(--sub);margin-bottom:16px;line-height:1.5;">Entenda cada ativo: risco, liquidez, garantia FGC e tributação.</p>
+            <div style="display:flex;flex-direction:column;gap:10px;" id="edu-list"></div>
+        </div>
+    </div>
+
+</main>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav no-select">
+    <div class="nav-item active" id="nav-pos" onclick="switchView('pos')">
+        <div class="nav-dot"><svg width="20" height="20" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
+        <span>Simular</span>
+    </div>
+    <div class="nav-item" id="nav-comp" onclick="switchView('comp')">
+        <div class="nav-dot"><svg width="20" height="20" fill="none" stroke="var(--sub)" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18M10 6v12M14 6v12"/></svg></div>
+        <span>Comparar</span>
+    </div>
+    <div class="nav-item" id="nav-saved" onclick="switchView('saved')">
+        <div class="nav-dot"><svg width="20" height="20" fill="none" stroke="var(--sub)" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg></div>
+        <span>Salvas</span>
+    </div>
+    <div class="nav-item" id="nav-edu" onclick="switchView('edu')">
+        <div class="nav-dot"><svg width="20" height="20" fill="none" stroke="var(--sub)" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg></div>
+        <span>Aprender</span>
+    </div>
+</nav>
+
+<footer>
+    <p>InvestPro Analytics v6.1 — Renda Fixa Brasil</p>
+    <p>Dados via Banco Central do Brasil (BCB). Rendimento passado não garante retorno futuro.</p>
+</footer>
+
+<script>
+// =====================================================================
+//  ESTADO GLOBAL
+// =====================================================================
+const state = {
+    rates: { selic: 10.75, cdi: 10.65, ipca: 4.50 },
+    chart: null,
+    isFetching: false,
+    lastResults: [],
+    lastMonths: 36,
+    scenario: 'base',
+    emissao: 'pre',
+    currentView: 'pos',
+    debounceTimer: null,
+    isDark: true
+};
+
+const SCENARIOS = {
+    base:       { selicMult: 1.00, ipcaMult: 1.00, desc: 'Selic e IPCA nos níveis atuais de mercado.' },
+    otimista:   { selicMult: 0.85, ipcaMult: 0.75, desc: 'Selic recuando, inflação controlada abaixo da meta.' },
+    pessimista: { selicMult: 1.15, ipcaMult: 1.40, desc: 'Selic elevada, inflação persistente acima de 6%.' }
+};
+
+const ASSET_META = {
+    cdb:        { fgc: true,  liq: 'Média', risco: 'Baixo',  riskClass: 'risk-low' },
+    lci:        { fgc: true,  liq: 'Baixa', risco: 'Baixo',  riskClass: 'risk-low' },
+    cricra_cdi: { fgc: false, liq: 'Baixa', risco: 'Médio',  riskClass: 'risk-mid' },
+    tesouro:    { fgc: false, liq: 'Alta',  risco: 'Mínimo', riskClass: 'risk-low' },
+    pre:        { fgc: false, liq: 'Alta',  risco: 'Médio',  riskClass: 'risk-mid' },
+    'tesouro-ipca': { fgc: false, liq: 'Alta', risco: 'Médio', riskClass: 'risk-mid' },
+    cricra_ipca:{ fgc: false, liq: 'Baixa', risco: 'Médio',  riskClass: 'risk-mid' },
+    debenture:  { fgc: false, liq: 'Baixa', risco: 'Alto',   riskClass: 'risk-high' },
+    fundo_di:   { fgc: false, liq: 'Alta',  risco: 'Baixo',  riskClass: 'risk-low' },
+    poupanca:   { fgc: true,  liq: 'Alta',  risco: 'Mínimo', riskClass: 'risk-low' },
+};
+
+const EDU_DATA = [
+    { title:'CDB — Certificado de Depósito Bancário',color:'#10b981',tag:'FGC até R$250k',tagClass:'tag-fgc',content:`<strong>Risco:</strong> Baixo (crédito do banco emissor + garantia FGC).<br><strong>Liquidez:</strong> CDB diário (D+1) ou no vencimento.<br><strong>Tributação:</strong> Tabela regressiva de IR (22,5% → 15%) + IOF nos primeiros 30 dias.<br><strong>Rendimento típico:</strong> 100% a 130% do CDI em bancos médios.<br><strong>Dica:</strong> Compare o CDB líquido de IR com a LCI/LCA isenta — use a calculadora de equivalência.` },
+    { title:'LCI / LCA — Letras de Crédito',color:'#0ea5e9',tag:'Isento IR (pré-2026)',tagClass:'tag-isento',content:`<strong>Risco:</strong> Baixo (FGC até R$250k por CPF por IF).<br><strong>Liquidez:</strong> Prazo mínimo de 90 dias (LCI) ou 12 meses (LCA).<br><strong>Tributação:</strong> Isenta de IR para PF em títulos emitidos antes de 2026.<br><strong>Rendimento típico:</strong> 88% a 100% do CDI.<br><strong>Dica:</strong> Excelente para médio prazo. Prefira LCI para prazos menores e LCA para 12+ meses.` },
+    { title:'Tesouro Selic (LFT)',color:'#8b5cf6',tag:'Melhor liquidez',tagClass:'tag-best-short',content:`<strong>Risco:</strong> Soberano (menor risco da economia).<br><strong>Liquidez:</strong> Recompra diária pelo Tesouro Nacional (D+1).<br><strong>Tributação:</strong> Tabela regressiva + taxa de custódia B3 de 0,20% a.a.<br><strong>Rendimento:</strong> ~100% da Selic, marcação a mercado mínima.<br><strong>Dica:</strong> Ideal para reserva de emergência e prazos indefinidos.` },
+    { title:'Tesouro IPCA+ (NTN-B)',color:'#f43f5e',tag:'Proteção inflação',tagClass:'tag-inflacao',content:`<strong>Risco:</strong> Soberano, mas com alta volatilidade de marcação a mercado.<br><strong>Liquidez:</strong> Recompra diária, preço oscila com juros longos.<br><strong>Tributação:</strong> Tabela regressiva + 0,20% a.a. custódia B3.<br><strong>Rendimento:</strong> IPCA + taxa fixa (ex: IPCA + 6%). Garante ganho real.<br><strong>Dica:</strong> Ótimo para longo prazo. Nunca venda antes do vencimento em cenário de alta de juros.` },
+    { title:'Tesouro Prefixado (LTN)',color:'#7c3aed',tag:'Longo prazo',tagClass:'tag-longo',content:`<strong>Risco:</strong> Soberano, alta volatilidade de preço.<br><strong>Liquidez:</strong> Recompra diária, preço marcado a mercado.<br><strong>Tributação:</strong> Tabela regressiva + 0,20% a.a. custódia B3.<br><strong>Rendimento:</strong> Taxa fixada na compra (ex: 13% a.a.).<br><strong>Dica:</strong> Aposta em queda de juros. Carregue até o vencimento.` },
+    { title:'CRI / CRA — Certificados do Agro e Real Estate',color:'#06b6d4',tag:'Isento IR (pré-2026)',tagClass:'tag-isento',content:`<strong>Risco:</strong> Médio-alto. Não possui FGC — avalie o cedente.<br><strong>Liquidez:</strong> Baixa; mercado secundário pouco ativo.<br><strong>Tributação:</strong> Isento de IR para PF (emissões pré-2026).<br><strong>Rendimento:</strong> CDI+ ou IPCA+, geralmente acima de LCI/LCA.<br><strong>Dica:</strong> Exija prêmio de 0,5% a 1% sobre LCI equivalente para compensar ausência do FGC.` },
+    { title:'Debêntures Incentivadas',color:'#ec4899',tag:'Isento IR',tagClass:'tag-isento',content:`<strong>Risco:</strong> Crédito da empresa emissora. Sem FGC. Diversifique.<br><strong>Liquidez:</strong> Baixa; alguns têm mercado secundário via B3.<br><strong>Tributação:</strong> Isenta de IR para PF (infraestrutura — Lei 12.431).<br><strong>Rendimento típico:</strong> IPCA + 7% a 9%.<br><strong>Dica:</strong> Prefira emissoras com rating investment grade (AAA/AA).` },
+    { title:'Fundo DI',color:'#ea580c',tag:'Come-cotas',tagClass:'tag-best-short',content:`<strong>Risco:</strong> Baixo (carteira de títulos públicos e CDBs).<br><strong>Liquidez:</strong> Alta — resgates em D+1 ou D+0.<br><strong>Tributação:</strong> Come-cotas semestral (maio e nov), alíquota mínima 15%.<br><strong>Dica:</strong> Use apenas para liquidez imediata. Para prazos >6 meses, CDB ou Tesouro Selic são superiores.` }
+];
+
+// =====================================================================
+//  FORMATAÇÃO
+// =====================================================================
+const fmtBRL = new Intl.NumberFormat('pt-BR', { style:'currency', currency:'BRL' });
+const fmtPct = (v) => v.toFixed(2).replace('.',',') + '%';
+function fmtBRLShort(v) {
+    if (Math.abs(v) >= 1e6) return 'R$' + (v/1e6).toFixed(2).replace('.',',') + 'M';
+    if (Math.abs(v) >= 1e3) return 'R$' + (v/1e3).toFixed(1).replace('.',',') + 'k';
+    return fmtBRL.format(v);
 }
+
+// =====================================================================
+//  CORES RESOLVIDAS para Chart.js (sem CSS vars)
+//  FIX: Chart.js não suporta CSS variables — resolve para hex/rgba
+// =====================================================================
+function getChartColors() {
+    const cs = getComputedStyle(document.body);
+    const get = (v) => cs.getPropertyValue(v).trim();
+    if (state.isDark) {
+        return {
+            tooltipBg: '#1c2c3d',
+            tooltipBorder: '#2b3f54',
+            tooltipTitle: '#9bb1c8',
+            tooltipBody: '#e8f0f8',
+            gridColor: 'rgba(43,63,84,0.45)',
+            tickColor: '#6e8fac'
+        };
+    } else {
+        return {
+            tooltipBg: '#ffffff',
+            tooltipBorder: '#cbd5e1',
+            tooltipTitle: '#64748b',
+            tooltipBody: '#1e293b',
+            gridColor: 'rgba(203,213,225,0.6)',
+            tickColor: '#64748b'
+        };
+    }
+}
+
+// =====================================================================
+//  DEBOUNCE
+// =====================================================================
+function debouncedRecalc() {
+    clearTimeout(state.debounceTimer);
+    state.debounceTimer = setTimeout(recalc, 250);
+}
+
+// =====================================================================
+//  NAVEGAÇÃO
+// =====================================================================
+function switchView(view) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => {
+        n.classList.remove('active');
+        n.querySelector('svg').setAttribute('stroke', 'var(--sub)');
+    });
+    document.getElementById('view-' + view).classList.add('active');
+    const navEl = document.getElementById('nav-' + view);
+    navEl.classList.add('active');
+    navEl.querySelector('svg').setAttribute('stroke', '#10b981');
+    state.currentView = view;
+    if (view === 'comp')  renderCompView();
+    if (view === 'saved') renderSavedView();
+    if (view === 'edu')   renderEduView();
+}
+
+// =====================================================================
+//  TEMA — FIX: recalc() para reconstruir gráfico com novas cores
+// =====================================================================
+function toggleTheme() {
+    state.isDark = !state.isDark;
+    document.body.classList.toggle('dark-theme', state.isDark);
+    document.body.classList.toggle('light-theme', !state.isDark);
+    localStorage.setItem('investpro_theme', state.isDark ? 'dark' : 'light');
+    const icon = document.getElementById('theme-icon');
+    icon.innerHTML = state.isDark
+        ? `<path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>`
+        : `<path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>`;
+    // Rebuild chart com cores corretas para o novo tema
+    recalc();
+}
+
+// =====================================================================
+//  CENÁRIOS
+// =====================================================================
+function setScenario(sc) {
+    state.scenario = sc;
+    document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('sc-' + sc).classList.add('active');
+    document.getElementById('scenario-desc').textContent = SCENARIOS[sc].desc;
+    recalc();
+}
+
+// =====================================================================
+//  EMISSÃO PRÉ/PÓS 2026
+// =====================================================================
+function setEmissao(val) {
+    state.emissao = val;
+    document.querySelectorAll('.pill-option').forEach(p => p.classList.remove('active'));
+    document.getElementById('tog-' + (val === 'pre' ? 'pre' : 'pos') + '2026').classList.add('active');
+    document.getElementById('emissao-desc').textContent = val === 'pre'
+        ? 'LCI/LCA/CRI/CRA emitidos antes de 2026 mantêm isenção para PF.'
+        : 'Simulação: ~5% de IR sobre rendimento de títulos emitidos a partir de 2026.';
+    recalc();
+}
+
+// =====================================================================
+//  API BCB
+// =====================================================================
+async function fetchBCBData() {
+    if (state.isFetching) return;
+    state.isFetching = true;
+    const badge = document.getElementById('status-badge');
+    const icon  = document.getElementById('refresh-icon');
+    badge.textContent = 'Sincronizando...';
+    badge.className = 'badge badge-sync loading-pulse';
+    let deg = 0;
+    const spin = setInterval(() => { deg = (deg+15)%360; icon.style.transform=`rotate(${deg}deg)`; }, 50);
+    const BCB = (code) => `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${code}/dados/ultimos/1?formato=json`;
+    const cached = localStorage.getItem('investpro_bcb');
+    if (cached) {
+        try {
+            const obj = JSON.parse(cached);
+            if (Date.now() - obj.ts < 5*60*1000) {
+                state.rates = obj.rates;
+                badge.textContent = 'Online'; badge.className = 'badge badge-online';
+                updateTickers(); recalc();
+                clearInterval(spin); icon.style.transform='rotate(0deg)';
+                state.isFetching = false;
+                showToast('Dados do cache'); return;
+            }
+        } catch(_) {}
+    }
+    try {
+        const [sRes,iRes] = await Promise.all([fetch(BCB(432)),fetch(BCB(13522))]);
+        const [sData,iData] = await Promise.all([sRes.json(),iRes.json()]);
+        if (sData?.[0]?.valor) state.rates.selic = parseFloat(sData[0].valor);
+        state.rates.cdi = Math.max(0, state.rates.selic - 0.10);
+        if (iData?.[0]?.valor) state.rates.ipca = parseFloat(iData[0].valor);
+        localStorage.setItem('investpro_bcb', JSON.stringify({ts:Date.now(),rates:state.rates}));
+        badge.textContent = 'Online'; badge.className = 'badge badge-online';
+        updateTickers(); recalc();
+        showToast('Dados atualizados do BCB');
+    } catch(err) {
+        badge.textContent = 'Offline'; badge.className = 'badge badge-offline';
+        recalc();
+    } finally {
+        state.isFetching = false; clearInterval(spin); icon.style.transform='rotate(0deg)';
+    }
+}
+
+function updateTickers() {
+    const sc = SCENARIOS[state.scenario];
+    const selic = state.rates.selic * sc.selicMult;
+    const ipca  = state.rates.ipca  * sc.ipcaMult;
+    const cdi   = Math.max(0, selic - 0.10);
+    document.getElementById('top-selic').textContent     = selic.toFixed(2)+'% a.a.';
+    document.getElementById('top-cdi').textContent       = cdi.toFixed(2)+'% a.a.';
+    document.getElementById('top-ipca').textContent      = ipca.toFixed(2)+'% a.a.';
+    const ipcaProj = parseInt(document.getElementById('in-ipca-proj')?.value||45)/10;
+    document.getElementById('top-ipca-proj').textContent = ipcaProj.toFixed(1)+'% a.a.';
+}
+
+// =====================================================================
+//  INPUT UTILITIES
+// =====================================================================
+function handleCurrencyInput(el) {
+    const start=el.selectionStart; const oldLen=el.value.length;
+    let digits=el.value.replace(/\D/g,'');
+    if(!digits) digits='0';
+    digits=digits.padStart(3,'0');
+    const intPart=digits.slice(0,-2).replace(/^0+/,'')||'0';
+    const decPart=digits.slice(-2);
+    const formatted=intPart.replace(/\B(?=(\d{3})+(?!\d))/g,'.')+','+decPart;
+    el.value=formatted;
+    const diff=formatted.length-oldLen;
+    try{el.setSelectionRange(start+diff,start+diff);}catch(_){}
+}
+function parseVal(id) {
+    const el=document.getElementById(id); if(!el) return 0;
+    return parseFloat(el.value.replace(/\./g,'').replace(',','.'))||0;
+}
+
+// =====================================================================
+//  IR
+// =====================================================================
+function getIRRate(months, isTaxFreeAsset) {
+    if (isTaxFreeAsset && state.emissao==='pre') return 0;
+    if (isTaxFreeAsset && state.emissao==='pos') return 0.05;
+    const days=months*30;
+    if (days<=180) return 0.225;
+    if (days<=360) return 0.20;
+    if (days<=720) return 0.175;
+    return 0.15;
+}
+
+// =====================================================================
+//  SIMULAÇÃO
+// =====================================================================
+function simulate(principal, monthly, months, config, useRealGain, ipcaFuturo, taxaAdmin) {
+    const sc=SCENARIOS[state.scenario];
+    const selic=state.rates.selic*sc.selicMult;
+    const cdi=Math.max(0,selic-0.10);
+
+    let annualRateGross=config.annualRate??0;
+    if (config.id==='cdb')         annualRateGross=cdi*(config.cdiPct/100);
+    if (config.id==='lci')         annualRateGross=cdi*(config.cdiPct/100);
+    if (config.id==='cricra_cdi')  annualRateGross=cdi*(config.cdiPct/100);
+    if (config.id==='tesouro')     annualRateGross=selic*(config.selicPct/100);
+    if (config.id==='fundo_di')    annualRateGross=cdi*(config.cdiPct/100);
+    annualRateGross=Math.max(0,annualRateGross-(taxaAdmin||0));
+
+    let rate;
+    if (config.isIPCAplus) {
+        const nominalTotal=(1+ipcaFuturo/100)*(1+config.fixedRate/100)-1;
+        rate=useRealGain ? config.fixedRate/100 : nominalTotal;
+    } else if (config.isPre) {
+        rate=config.fixedRate/100;
+        if (useRealGain&&ipcaFuturo>0) rate=(1+rate)/(1+ipcaFuturo/100)-1;
+    } else {
+        rate=annualRateGross/100;
+        if (useRealGain&&ipcaFuturo>0) rate=(1+rate)/(1+ipcaFuturo/100)-1;
+    }
+
+    // Fundo DI: come-cotas
+    if (config.id==='fundo_di'&&!useRealGain) {
+        const monthlyRate=Math.pow(1+rate,1/12)-1;
+        let bal=principal; let invested=principal; const history=[principal];
+        for(let m=1;m<=months;m++){
+            bal=bal*(1+monthlyRate)+monthly; invested+=monthly;
+            if(m%6===0){const profit=Math.max(0,bal-invested);bal-=profit*0.15;}
+            history.push(bal);
+        }
+        const net=bal; const grossProfit=net-invested;
+        return{net,netProfit:net-invested,grossProfit,total:net,invested,ir:0,irRate:.15,history,roi:invested>0?(net/invested-1)*100:0};
+    }
+
+    const monthlyRate=Math.pow(1+rate,1/12)-1;
+    let totalGross=0,totalIr=0,invested=principal,runningBalance=principal;
+    const history=[principal];
+
+    const irRatePrincipal=getIRRate(months,config.taxFree);
+    let initialGross=principal*Math.pow(1+monthlyRate,months);
+    totalGross+=initialGross;
+    let initialProfit=Math.max(0,initialGross-principal);
+    totalIr+=initialProfit*irRatePrincipal;
+
+    for(let m=1;m<=months;m++){
+        runningBalance=runningBalance*(1+monthlyRate)+monthly;
+        history.push(runningBalance);
+        let timeInvested=months-m;
+        if(timeInvested>0){
+            let parcelGross=monthly*Math.pow(1+monthlyRate,timeInvested);
+            totalGross+=parcelGross; invested+=monthly;
+            let parcelProfit=Math.max(0,parcelGross-monthly);
+            totalIr+=parcelProfit*getIRRate(timeInvested,config.taxFree);
+        } else {
+            totalGross+=monthly; invested+=monthly;
+        }
+    }
+
+    const grossProfit=totalGross-invested;
+    const net=totalGross-totalIr;
+    const netProfit=net-invested;
+    const roi=invested>0?(net/invested-1)*100:0;
+    const avgIrRate=grossProfit>0?totalIr/grossProfit:0;
+    return{net,netProfit,grossProfit,total:totalGross,invested,ir:totalIr,irRate:avgIrRate,history,roi};
+}
+
+// =====================================================================
+//  RECALC
+// =====================================================================
+function recalc() {
+    const principal=parseVal('in-principal');
+    const monthly=parseVal('in-monthly');
+    const timeVal=parseInt(document.getElementById('in-time').value)||0;
+    const unit=document.getElementById('in-time-unit').value;
+    const months=Math.min(Math.max(unit==='years'?timeVal*12:timeVal,1),600);
+    const taxaAdmin=parseFloat(document.getElementById('in-taxa-admin').value)||0;
+    const useReal=document.getElementById('in-real-gain').checked;
+    const showPoup=document.getElementById('in-show-poupanca').checked;
+
+    const cdbPerc   =parseInt(document.getElementById('in-cdb-perc').value);
+    const lciPerc   =parseInt(document.getElementById('in-lci-perc').value);
+    const criCdiPerc=parseInt(document.getElementById('in-cricra-cdi').value);
+    const selicPerc =parseInt(document.getElementById('in-selic-perc').value);
+    const preRateVal=parseInt(document.getElementById('in-pre-rate').value)/10;
+    const ipcaRateVal=parseInt(document.getElementById('in-ipca-rate').value)/10;
+    const criIpcaVal=parseInt(document.getElementById('in-cricra-ipca').value)/10;
+    const debRateVal=parseInt(document.getElementById('in-deb-rate').value)/10;
+    const fundoPerc =parseInt(document.getElementById('in-fundo-perc').value);
+    const ipcaProj  =parseInt(document.getElementById('in-ipca-proj').value)/10;
+
+    // Update labels
+    document.getElementById('val-cdb-perc').textContent    = cdbPerc+'%';
+    document.getElementById('val-lci-perc').textContent    = lciPerc+'%';
+    document.getElementById('val-cricra-cdi').textContent  = criCdiPerc+'%';
+    document.getElementById('val-selic-perc').textContent  = selicPerc+'%';
+    document.getElementById('val-pre-rate').textContent    = preRateVal.toFixed(1)+'%';
+    document.getElementById('val-ipca-rate').textContent   = ipcaRateVal.toFixed(1)+'%';
+    document.getElementById('val-cricra-ipca').textContent = criIpcaVal.toFixed(1)+'%';
+    document.getElementById('val-deb-rate').textContent    = debRateVal.toFixed(1)+'%';
+    document.getElementById('val-fundo-perc').textContent  = fundoPerc+'%';
+    document.getElementById('val-ipca-proj').textContent   = ipcaProj.toFixed(1)+'%';
+    document.getElementById('top-ipca-proj').textContent   = ipcaProj.toFixed(1)+'% a.a.';
+
+    const sc=SCENARIOS[state.scenario];
+    const selic=state.rates.selic*sc.selicMult;
+    const cdi=Math.max(0,selic-0.10);
+    const poupRate=selic>8.5?(6.17+1.5):selic*0.70;
+
+    const investments=[
+        {id:'cdb',        label:`CDB ${cdbPerc}% CDI`,          shortLabel:'CDB',          color:'#10b981',taxFree:false,cdiPct:cdbPerc},
+        {id:'lci',        label:`LCI/LCA ${lciPerc}% CDI`,      shortLabel:'LCI/LCA',      color:'#0ea5e9',taxFree:true, cdiPct:lciPerc},
+        {id:'cricra_cdi', label:`CRI/CRA ${criCdiPerc}% CDI`,   shortLabel:'CRI/CRA CDI',  color:'#06b6d4',taxFree:true, cdiPct:criCdiPerc},
+        {id:'tesouro',    label:`Tesouro Selic ${selicPerc}%`,   shortLabel:'Ts. Selic',    color:'#8b5cf6',taxFree:false,selicPct:selicPerc,annualRate:selic*selicPerc/100},
+        {id:'pre',        label:`Prefixado ${preRateVal.toFixed(1)}%`, shortLabel:'Prefixado', color:'#7c3aed',taxFree:false,isPre:true,fixedRate:preRateVal},
+        {id:'tesouro-ipca',label:`Ts. IPCA+ ${ipcaRateVal.toFixed(1)}%`, shortLabel:'Ts. IPCA+', color:'#f43f5e',taxFree:false,isIPCAplus:true,fixedRate:ipcaRateVal},
+        {id:'cricra_ipca',label:`CRI/CRA IPCA+ ${criIpcaVal.toFixed(1)}%`, shortLabel:'CRI/CRA IPCA', color:'#f59e0b',taxFree:true, isIPCAplus:true,fixedRate:criIpcaVal},
+        {id:'debenture',  label:`Debênture IPCA+ ${debRateVal.toFixed(1)}%`, shortLabel:'Debênture', color:'#ec4899',taxFree:true, isIPCAplus:true,fixedRate:debRateVal},
+        {id:'fundo_di',   label:`Fundo DI ${fundoPerc}% CDI`,   shortLabel:'Fundo DI',     color:'#ea580c',taxFree:false,cdiPct:fundoPerc,annualRate:cdi*fundoPerc/100},
+    ];
+    if (showPoup) investments.push({id:'poupanca',label:'Poupança',shortLabel:'Poupança',color:'#a1a1aa',taxFree:true,annualRate:poupRate});
+
+    const results=investments.map(inv=>({...inv,data:simulate(principal,monthly,months,inv,useReal,ipcaProj,taxaAdmin)}));
+    results.sort((a,b)=>b.data.net-a.data.net);
+    state.lastResults=results;
+    state.lastMonths=months;
+
+    document.getElementById('top-months').textContent=
+        months<12?`${months} ${months===1?'mês':'meses'}`:
+        months%12===0?`${months/12} ${months/12===1?'ano':'anos'}`:
+        `${months} meses`;
+
+    renderHero(results[0],months);
+    renderComparison(results,months);
+    renderFiscal(results,months);
+    renderChart(results,months);
+    calcEquiv();
+    updateTickers();
+    if(state.currentView==='comp') renderCompView();
+}
+
+// =====================================================================
+//  EQUIVALÊNCIA
+// =====================================================================
+function calcEquiv() {
+    const aCdi=parseFloat(document.getElementById('eq-a-cdi')?.value)||110;
+    const bCdi=parseFloat(document.getElementById('eq-b-cdi')?.value)||90;
+    const cdi=Math.max(0,state.rates.selic*SCENARIOS[state.scenario].selicMult-0.10);
+    const months=state.lastMonths||36;
+    const irA=getIRRate(months,false);
+    const netA=cdi*(aCdi/100)*(1-irA);
+    const netB=cdi*(bCdi/100);
+    const diff=netA-netB;
+    const el=document.getElementById('equiv-result'); if(!el) return;
+    const winner=diff>=0?`Ativo A (${aCdi}% CDI tributável)`:`Ativo B (${bCdi}% CDI isento)`;
+    const color=diff>=0?'#34d399':'#38bdf8';
+    el.innerHTML=`
+        <p style="font-size:11px;color:var(--sub);margin-bottom:8px;">Para prazo de ${months} meses:</p>
+        <p style="font-size:12px;font-weight:700;margin-bottom:4px;">Ativo A líquido: <span style="color:#34d399;font-family:'DM Mono',monospace;">${netA.toFixed(2).replace('.',',')}% a.a.</span></p>
+        <p style="font-size:12px;font-weight:700;margin-bottom:10px;">Ativo B líquido: <span style="color:#38bdf8;font-family:'DM Mono',monospace;">${netB.toFixed(2).replace('.',',')}% a.a.</span></p>
+        <p style="font-size:13px;font-weight:800;color:${color};">✦ ${winner} rende mais neste prazo.</p>
+        <p style="font-size:10px;color:var(--sub);margin-top:6px;">Diferença: ${Math.abs(diff).toFixed(2).replace('.',',')}% a.a. líquida</p>`;
+}
+
+// =====================================================================
+//  TOAST
+// =====================================================================
+function showToast(msg, icon='✓') {
+    const t=document.getElementById('toast');
+    t.textContent=`${icon} ${msg}`;
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// =====================================================================
+//  SALVAR — FIX: armazena mais dados para exibição
+// =====================================================================
+function saveSimulation() {
+    if(!state.lastResults.length){showToast('Execute uma simulação primeiro','⚠');return;}
+    let sims=[];
+    try{sims=JSON.parse(localStorage.getItem('investpro_sims')||'[]');}catch(_){sims=[];}
+    const now=new Date();
+    const label=`${now.toLocaleDateString('pt-BR')} ${now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`;
+    const principal=parseVal('in-principal');
+    const monthly=parseVal('in-monthly');
+    const best=state.lastResults[0];
+    sims.unshift({
+        id:Date.now(),label,
+        months:state.lastMonths,principal,monthly,
+        scenario:state.scenario,emissao:state.emissao,
+        timeVal:document.getElementById('in-time').value,
+        timeUnit:document.getElementById('in-time-unit').value,
+        best:best?.label,
+        bestNet:best?.data?.net,
+        bestProfit:best?.data?.netProfit,
+        bestROI:best?.data?.roi,
+        topThree:state.lastResults.slice(0,3).map(r=>({label:r.label,net:r.data.net,roi:r.data.roi,color:r.color}))
+    });
+    if(sims.length>20) sims.pop();
+    localStorage.setItem('investpro_sims',JSON.stringify(sims));
+    showToast('Simulação salva! Veja em "Salvas"');
+}
+
+// =====================================================================
+//  EXPORTAR CSV
+// =====================================================================
+function exportCSV() {
+    if(!state.lastResults.length){showToast('Execute uma simulação primeiro','⚠');return;}
+    const rows=[['Ativo','Valor Final','Total Investido','Lucro Bruto','IR Pago','Lucro Líquido','ROI (%)']];
+    state.lastResults.forEach(r=>{
+        const d=r.data;
+        rows.push([r.label,d.net.toFixed(2),d.invested.toFixed(2),d.grossProfit.toFixed(2),d.ir.toFixed(2),d.netProfit.toFixed(2),d.roi.toFixed(2)]);
+    });
+    const csv=rows.map(r=>r.join(';')).join('\n');
+    const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='investpro_simulacao.csv';a.click();
+    URL.revokeObjectURL(url);
+    showToast('CSV exportado!');
+}
+
+// =====================================================================
+//  RENDER: HERO
+// =====================================================================
+function renderHero(best,months) {
+    const d=best.data;
+    const ipcaProj=parseInt(document.getElementById('in-ipca-proj').value)/10;
+    const realReturn=((1+d.roi/100)/(1+(ipcaProj*months/12)/100)-1)*100;
+    document.getElementById('hero-net-value').textContent=fmtBRL.format(d.net);
+    document.getElementById('hero-label').textContent=`Melhor: ${best.label}`;
+    document.getElementById('hero-profit').textContent=`+${fmtBRL.format(d.netProfit)}`;
+    document.getElementById('hero-invested').textContent=fmtBRL.format(d.invested);
+    document.getElementById('hero-gross-profit').textContent=fmtBRL.format(d.grossProfit);
+    document.getElementById('hero-ir').textContent=d.ir>0.01?fmtBRL.format(d.ir):'Isento';
+    document.getElementById('hero-real').textContent=`${realReturn>=0?'+':''}${realReturn.toFixed(2).replace('.',',')}% real (aprox.)`;
+    const badges=[];
+    if(best.taxFree&&state.emissao==='pre') badges.push(`<span class="badge-tag tag-isento">Isento IR</span>`);
+    if(best.id==='tesouro') badges.push(`<span class="badge-tag tag-best-short">Liquidez Diária</span>`);
+    if(best.isIPCAplus||best.isPre) badges.push(`<span class="badge-tag tag-inflacao">Protege Inflação</span>`);
+    if(best.id?.includes('cricra')||best.id==='debenture') badges.push(`<span class="badge-tag" style="background:rgba(239,68,68,.15);color:#f87171;">Sem FGC</span>`);
+    document.getElementById('hero-badges').innerHTML=badges.join('');
+}
+
+// =====================================================================
+//  RENDER: COMPARISON LIST
+// =====================================================================
+function renderComparison(results,months) {
+    const list=document.getElementById('comparison-list');
+    const ipcaProj=parseInt(document.getElementById('in-ipca-proj').value)/10;
+    list.innerHTML=results.map((r,i)=>{
+        const d=r.data;
+        const isBest=i===0;
+        const totalIPCA=Math.pow(1+ipcaProj/100,months/12);
+        const realROI=((1+d.roi/100)/totalIPCA-1)*100;
+        let rateDisplay=r.isIPCAplus?`IPCA + ${r.fixedRate.toFixed(2)}%`:r.isPre?`${r.fixedRate.toFixed(2)}% a.a.`:r.cdiPct?`${r.cdiPct}% CDI`:r.selicPct?`${r.selicPct}% Selic`:'';
+        const tags=[];
+        if(isBest) tags.push(`<span class="badge-tag tag-best-short">🥇 Melhor</span>`);
+        if(r.taxFree&&state.emissao==='pre') tags.push(`<span class="badge-tag tag-isento">Isento</span>`);
+        if(r.id==='tesouro') tags.push(`<span class="badge-tag tag-best-short">Alta liquidez</span>`);
+        return `<div class="comp-card ${isBest?'best':''}">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div class="rank" style="background:${r.color}22;color:${r.color};font-family:'DM Mono',monospace;">${i+1}</div>
+                <div>
+                    <p style="font-size:13px;font-weight:700;color:var(--text);line-height:1.2;">${r.label}</p>
+                    <p style="font-size:10px;color:var(--sub);margin-top:2px;">${r.taxFree&&state.emissao==='pre'?'Isento de IR':'Tributável'} · ${rateDisplay}</p>
+                    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">${tags.join('')}</div>
+                </div>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+                <p style="font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--text);">${fmtBRL.format(d.net)}</p>
+                <span class="profit-pill ${d.netProfit>=0?'profit-up':'profit-down'}" style="margin-top:4px;display:inline-block;">${d.netProfit>=0?'▲':'▼'} ${Math.abs(d.roi).toFixed(2)}%</span>
+                <p style="font-size:9px;color:var(--sub);margin-top:2px;">Real: ${realROI>=0?'+':''}${realROI.toFixed(2)}%</p>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// =====================================================================
+//  RENDER: FISCAL
+// =====================================================================
+function renderFiscal(results,months) {
+    const tbody=document.getElementById('fiscal-summary');
+    tbody.innerHTML=results.map((r,i)=>{
+        const d=r.data;
+        return `<tr ${i===0?'class="best-row"':''}>
+            <td><div style="display:flex;align-items:center;gap:6px;"><div class="dot" style="background:${r.color};"></div>${r.shortLabel}</div></td>
+            <td style="color:${d.ir>0.01?'#fb923c':'#34d399'};">${d.ir>0.01?fmtBRL.format(d.ir):'Isento'}</td>
+            <td style="color:var(--sub);">${d.ir>0.01?(d.irRate*100).toFixed(1)+'%':'—'}</td>
+            <td style="color:${i===0?'#34d399':'var(--text)'};">${fmtBRL.format(d.net)}</td>
+        </tr>`;
+    }).join('');
+}
+
+// =====================================================================
+//  RENDER: CHART — FIX: usa getChartColors() em vez de CSS vars
+// =====================================================================
+function renderChart(results,months) {
+    const ctx=document.getElementById('chartEvolution').getContext('2d');
+    const cc=getChartColors();  // cores resolvidas para o tema atual
+
+    document.getElementById('chart-legend').innerHTML=results.map(r=>`
+        <div style="display:flex;align-items:center;gap:5px;">
+            <div class="legend-dot" style="background:${r.color};"></div>
+            <span style="font-size:10px;color:var(--sub);font-weight:600;">${r.shortLabel}</span>
+        </div>`).join('');
+
+    if(state.chart){state.chart.destroy();}
+
+    state.chart=new Chart(ctx,{
+        type:'line',
+        data:{
+            labels:Array.from({length:months+1},(_,i)=>i),
+            datasets:results.map((r,i)=>({
+                label:r.label,
+                data:r.data.history,
+                borderColor:r.color,
+                backgroundColor:i===0?r.color+'18':'transparent',
+                fill:i===0,
+                borderWidth:i===0?2.5:1.5,
+                pointRadius:0,
+                tension:0.35
+            }))
+        },
+        options:{
+            responsive:true,maintainAspectRatio:false,
+            interaction:{mode:'index',intersect:false},
+            plugins:{
+                legend:{display:false},
+                tooltip:{
+                    backgroundColor: cc.tooltipBg,
+                    borderColor: cc.tooltipBorder,
+                    borderWidth:1,
+                    titleColor: cc.tooltipTitle,
+                    bodyColor: cc.tooltipBody,
+                    titleFont:{family:'Syne',size:10},
+                    bodyFont:{family:'DM Mono',size:11},
+                    callbacks:{
+                        title:(items)=>`Mês ${items[0].label}`,
+                        label:(item)=>` ${item.dataset.label}: ${fmtBRL.format(item.raw)}`
+                    },
+                    padding:10
+                }
+            },
+            scales:{
+                x:{
+                    grid:{color:cc.gridColor},
+                    ticks:{color:cc.tickColor,font:{size:9,family:'Syne'},maxTicksLimit:7,
+                        callback:(v,i,arr)=>(i%Math.ceil(months/6)===0)?`M${v}`:''}
+                },
+                y:{
+                    grid:{color:cc.gridColor},
+                    ticks:{color:cc.tickColor,font:{size:9,family:'DM Mono'},callback:v=>fmtBRLShort(v)}
+                }
+            }
+        }
+    });
+}
+
+// =====================================================================
+//  RENDER: COMPARE VIEW — redesenhada completamente
+// =====================================================================
+function renderCompView() {
+    if(!state.lastResults.length) return;
+    const results=state.lastResults;
+    const months=state.lastMonths||36;
+    const maxNet=results[0].data.net;
+    const minNet=results[results.length-1].data.net;
+    const netRange=Math.max(maxNet-minNet,1);
+
+    // ── KPI Cards ──
+    const bestOverall=results[0];
+    const bestIsento=results.find(r=>r.taxFree&&state.emissao==='pre')||results[0];
+    const bestIPCA=results.find(r=>r.isIPCAplus)||null;
+    const bestLiq=results.find(r=>r.id==='tesouro')||results.find(r=>r.id==='fundo_di')||results[0];
+    const bestFGC=results.find(r=>['cdb','lci','poupanca'].includes(r.id))||null;
+
+    const kpiGrid=document.getElementById('comp-kpi-grid');
+    kpiGrid.innerHTML=[
+        {icon:'🏆',title:'Melhor retorno líquido',val:fmtBRL.format(bestOverall.data.net),sub:bestOverall.shortLabel,color:bestOverall.color},
+        {icon:'🆓',title:'Melhor isento de IR',val:bestIsento.shortLabel,sub:fmtBRL.format(bestIsento.data.net),color:'#38bdf8'},
+        {icon:'📈',title:'Ganho sobre investido',val:'+'+fmtBRL.format(bestOverall.data.netProfit),sub:`ROI ${bestOverall.data.roi.toFixed(2)}%`,color:'#34d399'},
+        {icon:'🛡️',title:'Prot. inflação (IPCA+)',val:bestIPCA?bestIPCA.shortLabel:'—',sub:bestIPCA?fmtBRL.format(bestIPCA.data.net):'Nenhum selecionado',color:'#fb7185'},
+    ].map(k=>`
+        <div class="metric-card ${k===kpiGrid?'highlight':''}">
+            <div style="font-size:18px;margin-bottom:6px;">${k.icon}</div>
+            <p style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--sub);margin-bottom:4px;">${k.title}</p>
+            <p style="font-size:14px;font-weight:800;color:${k.color};font-family:'DM Mono',monospace;line-height:1.2;">${k.val}</p>
+            <p style="font-size:10px;color:var(--sub);margin-top:2px;">${k.sub}</p>
+        </div>`).join('');
+
+    // ── Visual Bars ──
+    const barsEl=document.getElementById('comp-bars');
+    barsEl.innerHTML=results.map((r,i)=>{
+        const d=r.data;
+        // Bar width: proportional entre min e max, mínimo 8%
+        const pct=Math.max(8,((d.net-minNet)/netRange)*92+8);
+        const isBest=i===0;
+        const annualROI=months>0?(Math.pow(1+d.roi/100,12/months)-1)*100:0;
+        return `
+        <div class="comp-row">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div style="width:20px;height:20px;border-radius:6px;background:${r.color}22;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:${r.color};">${i+1}</div>
+                    <div>
+                        <span style="font-size:12px;font-weight:700;color:var(--text);">${r.shortLabel}</span>
+                        ${isBest?`<span class="badge-tag tag-best-short" style="margin-left:6px;">Melhor</span>`:''}
+                        ${r.taxFree&&state.emissao==='pre'?`<span class="badge-tag tag-isento" style="margin-left:4px;">Isento</span>`:''}
+                    </div>
+                </div>
+                <div style="text-align:right;">
+                    <p style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${isBest?'#34d399':'var(--text)'};">${fmtBRL.format(d.net)}</p>
+                    <p style="font-size:9px;color:var(--sub);margin-top:1px;">${annualROI.toFixed(2)}% a.a.</p>
+                </div>
+            </div>
+            <div class="bar-track">
+                <div class="bar-fill" style="width:${pct}%;background:${r.color};"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px;">
+                <span style="font-size:9px;color:var(--sub);">Lucro: +${fmtBRL.format(d.netProfit)}</span>
+                <span style="font-size:9px;color:${d.ir>0.01?'#fb923c':'#34d399'};">${d.ir>0.01?'IR: '+fmtBRL.format(d.ir):'Isento IR'}</span>
+            </div>
+        </div>`;
+    }).join('');
+
+    // ── Tabela Analítica ──
+    const wrap=document.getElementById('comp-table-wrap');
+    wrap.innerHTML=`
+    <table class="comp-table">
+        <thead><tr>
+            <th>#</th><th>Ativo</th><th>Valor Final</th><th>Rend. Bruto</th><th>IR</th><th>ROI Total</th><th>ROI Anual</th>
+        </tr></thead>
+        <tbody>${results.map((r,i)=>{
+            const d=r.data;
+            const annualROI=months>0?(Math.pow(1+d.roi/100,12/months)-1)*100:0;
+            return `<tr ${i===0?'class="best-row"':''}>
+                <td style="color:${r.color};font-weight:800;">${i+1}</td>
+                <td><div style="display:flex;align-items:center;gap:6px;"><div class="dot" style="background:${r.color};"></div>${r.shortLabel}</div></td>
+                <td>${fmtBRL.format(d.net)}</td>
+                <td style="color:#34d399;">+${fmtBRL.format(d.grossProfit)}</td>
+                <td style="color:${d.ir>0.01?'#fb923c':'#34d399'};">${d.ir>0.01?fmtBRL.format(d.ir):'Isento'}</td>
+                <td>${d.roi.toFixed(2)}%</td>
+                <td>${annualROI.toFixed(2)}% a.a.</td>
+            </tr>`;
+        }).join('')}</tbody>
+    </table>`;
+
+    // ── Perfil por Ativo ──
+    const profileEl=document.getElementById('comp-profile');
+    profileEl.innerHTML=results.map((r,i)=>{
+        const meta=ASSET_META[r.id]||{fgc:false,liq:'—',risco:'—',riskClass:'risk-low'};
+        return `
+        <div class="comp-row" style="padding:12px 0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div class="dot" style="background:${r.color};width:10px;height:10px;"></div>
+                    <div>
+                        <p style="font-size:12px;font-weight:700;color:var(--text);">${r.label}</p>
+                        <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;">
+                            <span class="risk-pill ${meta.riskClass}">Risco: ${meta.risco}</span>
+                            <span style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(14,165,233,.1);color:#38bdf8;">Liq: ${meta.liq}</span>
+                            <span style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:99px;background:${meta.fgc?'rgba(16,185,129,.1)':'rgba(239,68,68,.1)'};color:${meta.fgc?'#34d399':'#f87171'};">${meta.fgc?'✓ FGC':'✗ Sem FGC'}</span>
+                            ${r.taxFree&&state.emissao==='pre'?`<span class="badge-tag tag-isento">Isento IR</span>`:''}
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align:right;flex-shrink:0;">
+                    <p style="font-family:'DM Mono',monospace;font-size:13px;color:${i===0?'#34d399':'var(--text)'};">${fmtBRL.format(r.data.net)}</p>
+                    <p style="font-size:9px;color:var(--sub);margin-top:2px;">Rank #${i+1}</p>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// =====================================================================
+//  RENDER: SAVED VIEW — FIX completo com exibição de dados e Carregar
+// =====================================================================
+function renderSavedView() {
+    let sims=[];
+    try {
+        const raw=localStorage.getItem('investpro_sims');
+        sims=raw?JSON.parse(raw):[];
+        if(!Array.isArray(sims)) sims=[];
+    } catch(_) { sims=[]; }
+
+    const listEl=document.getElementById('saved-list');
+    const emptyEl=document.getElementById('saved-empty');
+
+    if(!sims.length){
+        listEl.innerHTML='';
+        emptyEl.style.display='block';
+        return;
+    }
+    emptyEl.style.display='none';
+
+    listEl.innerHTML=sims.map(s=>{
+        const topHtml=(s.topThree||[]).map((t,i)=>`
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(43,63,84,.25);">
+                <div style="display:flex;align-items:center;gap:6px;">
+                    <span style="font-size:9px;font-weight:800;color:${t.color||'var(--sub)'};width:14px;">${i+1}.</span>
+                    <span style="font-size:11px;color:var(--text);font-weight:600;">${t.label}</span>
+                </div>
+                <div style="text-align:right;">
+                    <span style="font-family:'DM Mono',monospace;font-size:11px;color:${i===0?'#34d399':'var(--sub)'};">${fmtBRL.format(t.net||0)}</span>
+                    <span style="font-size:9px;color:var(--sub);margin-left:6px;">${(t.roi||0).toFixed(1)}%</span>
+                </div>
+            </div>`).join('');
+
+        return `
+        <div class="saved-sim">
+            <!-- Header da simulação -->
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;">
+                <div>
+                    <p style="font-size:13px;font-weight:800;color:var(--text);">${s.label}</p>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
+                        <span style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(16,185,129,.12);color:#34d399;">${s.months} meses</span>
+                        <span style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(14,165,233,.1);color:#38bdf8;">${SCENARIOS[s.scenario]?s.scenario:'base'}</span>
+                        <span style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(139,92,246,.1);color:#a78bfa;">${s.emissao==='pre'?'Pré-2026':'Pós-2026'}</span>
+                    </div>
+                </div>
+                <button onclick="deleteSim(${s.id})" style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:5px 8px;cursor:pointer;font-size:10px;font-weight:700;color:#f87171;flex-shrink:0;margin-left:8px;">✕</button>
+            </div>
+
+            <!-- Parâmetros -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+                <div style="background:var(--bg);border-radius:8px;padding:8px 10px;">
+                    <p style="font-size:9px;color:var(--sub);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;">Inicial</p>
+                    <p style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text);font-weight:500;">${fmtBRL.format(s.principal||0)}</p>
+                </div>
+                <div style="background:var(--bg);border-radius:8px;padding:8px 10px;">
+                    <p style="font-size:9px;color:var(--sub);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;">Aporte/mês</p>
+                    <p style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text);font-weight:500;">${fmtBRL.format(s.monthly||0)}</p>
+                </div>
+            </div>
+
+            <!-- Melhor resultado -->
+            <div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:10px 12px;margin-bottom:10px;">
+                <p style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:4px;">🏆 Melhor opção</p>
+                <p style="font-size:13px;font-weight:700;color:var(--text);">${s.best||'—'}</p>
+                <div style="display:flex;gap:12px;margin-top:6px;">
+                    <div>
+                        <p style="font-size:9px;color:var(--sub);">Valor final</p>
+                        <p style="font-family:'DM Mono',monospace;font-size:13px;color:#34d399;font-weight:500;">${fmtBRL.format(s.bestNet||0)}</p>
+                    </div>
+                    <div>
+                        <p style="font-size:9px;color:var(--sub);">Lucro líq.</p>
+                        <p style="font-family:'DM Mono',monospace;font-size:13px;color:#34d399;font-weight:500;">+${fmtBRL.format(s.bestProfit||0)}</p>
+                    </div>
+                    <div>
+                        <p style="font-size:9px;color:var(--sub);">ROI</p>
+                        <p style="font-family:'DM Mono',monospace;font-size:13px;color:#34d399;font-weight:500;">${(s.bestROI||0).toFixed(2)}%</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top 3 -->
+            ${s.topThree&&s.topThree.length>1?`
+            <div style="margin-bottom:10px;">
+                <p style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--sub);margin-bottom:6px;">Top 3 desta simulação</p>
+                ${topHtml}
+            </div>`:''}
+
+            <!-- Ação: Carregar -->
+            <button onclick="loadSim(${s.id})" style="width:100%;height:36px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);border-radius:10px;font-size:12px;font-weight:700;color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                Carregar parâmetros desta simulação
+            </button>
+        </div>`;
+    }).join('');
+}
+
+function loadSim(id) {
+    let sims=[];
+    try{sims=JSON.parse(localStorage.getItem('investpro_sims')||'[]');}catch(_){return;}
+    const s=sims.find(x=>x.id===id);
+    if(!s) return;
+
+    // Preenche campos
+    if(s.principal!==undefined){
+        const v=s.principal.toFixed(2);
+        const parts=v.split('.');
+        const intF=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+        document.getElementById('in-principal').value=intF+','+parts[1];
+    }
+    if(s.monthly!==undefined){
+        const v=s.monthly.toFixed(2);
+        const parts=v.split('.');
+        const intF=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+        document.getElementById('in-monthly').value=intF+','+parts[1];
+    }
+    if(s.timeVal) document.getElementById('in-time').value=s.timeVal;
+    if(s.timeUnit) document.getElementById('in-time-unit').value=s.timeUnit;
+    if(s.scenario) setScenario(s.scenario);
+    if(s.emissao)  setEmissao(s.emissao);
+
+    switchView('pos');
+    recalc();
+    showToast('Simulação carregada!','📂');
+}
+
+function deleteSim(id) {
+    let sims=[];
+    try{sims=JSON.parse(localStorage.getItem('investpro_sims')||'[]');}catch(_){sims=[];}
+    sims=sims.filter(s=>s.id!==id);
+    localStorage.setItem('investpro_sims',JSON.stringify(sims));
+    renderSavedView();
+    showToast('Simulação removida');
+}
+
+function clearAllSims() {
+    if(!confirm('Apagar todas as simulações salvas?')) return;
+    localStorage.removeItem('investpro_sims');
+    renderSavedView();
+    showToast('Histórico limpo');
+}
+
+// =====================================================================
+//  RENDER: EDU
+// =====================================================================
+function renderEduView() {
+    const list=document.getElementById('edu-list');
+    if(list.innerHTML) return;
+    list.innerHTML=EDU_DATA.map((item,i)=>`
+        <div class="edu-card">
+            <div class="edu-header" onclick="toggleEdu(${i})">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div class="dot" style="background:${item.color};width:10px;height:10px;"></div>
+                    <div>
+                        <p style="font-size:12px;font-weight:700;color:var(--text);">${item.title}</p>
+                        <span class="badge-tag ${item.tagClass}" style="margin-top:3px;display:inline-block;">${item.tag}</span>
+                    </div>
+                </div>
+                <svg id="chevron-${i}" class="edu-chevron" width="16" height="16" fill="none" stroke="var(--sub)" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div id="edu-body-${i}" class="edu-body">
+                <div style="font-size:12px;color:var(--sub);line-height:1.7;border-top:1px solid var(--border);padding-top:12px;">${item.content}</div>
+            </div>
+        </div>`).join('');
+}
+function toggleEdu(i) {
+    document.getElementById(`edu-body-${i}`).classList.toggle('open');
+    document.getElementById(`chevron-${i}`).classList.toggle('open');
+}
+
+// =====================================================================
+//  INIT
+// =====================================================================
+window.addEventListener('load',()=>{
+    // Tema salvo
+    const savedTheme=localStorage.getItem('investpro_theme');
+    if(savedTheme==='light'){
+        state.isDark=false;
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+        document.getElementById('theme-icon').innerHTML=`<path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>`;
+    }
+    document.querySelectorAll('button,input[type="range"]').forEach(el=>{
+        el.addEventListener('touchstart',()=>{try{if(navigator.vibrate)navigator.vibrate(5);}catch(_){}},{passive:true});
+    });
+    updateTickers();
+    recalc();
+    fetchBCBData();
+});
+</script>
+</body>
+</html>
